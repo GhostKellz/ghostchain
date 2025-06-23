@@ -13,6 +13,7 @@
 <p align="center">
   <img src="https://github.com/ghostkellz/ghostchain/raw/main/assets/gcc-logo.png" alt="GhostChain Logo" width="240"/>
 </p>
+
 ---
 ## 🌐 Project Overview
 
