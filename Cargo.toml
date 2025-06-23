@@ -1,0 +1,42 @@
+[package]
+name = "ghostchain"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1.40", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+hex = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+ed25519-dalek = "2.1"
+rand = "0.8"
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive"] }
+bincode = "1.3"
+# rocksdb = "0.21"  # Commented out for now due to build issues
+thiserror = "1.0"
+blake3 = "1.5"
+uuid = { version = "1.7", features = ["v4", "serde"] }
+async-trait = "0.1"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Networking dependencies (simplified for now)
+bytes = "1.5"
+futures = "0.3"
+
+# Storage dependencies
+sled = "0.34"
+
+# RPC dependencies (disabled for now)
+# jsonrpc-core = "18.0"
+# jsonrpc-derive = "18.0"
+# jsonrpc-http-server = "18.0"
+# jsonrpc-core-client = "18.0"
+# tonic = "0.12"
+# prost = "0.13"
+
+[dev-dependencies]
+tempfile = "3.10"
