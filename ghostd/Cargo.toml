@@ -1,0 +1,44 @@
+[package]
+name = "ghostd"
+version = "0.1.0"
+edition = "2024"
+description = "GhostChain blockchain daemon with ZQUIC integration"
+
+[[bin]]
+name = "ghostd"
+path = "src/main.rs"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+clap = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+bytes = { workspace = true }
+futures = { workspace = true }
+tonic = { workspace = true }
+prost = { workspace = true }
+tower = { workspace = true }
+hyper = { workspace = true }
+jsonrpc-core = { workspace = true }
+jsonrpc-derive = { workspace = true }
+jsonrpc-http-server = { workspace = true }
+jsonrpc-ws-server = { workspace = true }
+
+# Local dependencies
+ghostchain-core = { path = "../core" }
+ghostchain-shared = { path = "../shared" }
+
+# ZQUIC integration (will be linked as external library)
+# Note: In production, this would link to the compiled ZQUIC library
+# For now, we'll use placeholder FFI bindings
+
+[build-dependencies]
+tonic-build = { workspace = true }

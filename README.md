@@ -1,208 +1,259 @@
 # 👻 GhostChain
 
 [![Rust](https://img.shields.io/badge/Rust-2024-informational?logo=rust)](https://www.rust-lang.org/)
-[![clap CLI](https://img.shields.io/badge/CLI-clap-blue?logo=command-line)](https://github.com/clap-rs/clap)
-[![Crypto](https://img.shields.io/badge/Crypto-Ed25519%20%7C%20Blake3%20%7C%20X25519-purple?logo=cryptpad)]()
-[![QUIC](https://img.shields.io/badge/Networking-QUIC%20%7C%20HTTP3-0a8fdc?logo=quic)](https://github.com/quinn-rs/quinn)
-[![Blockchain](https://img.shields.io/badge/Blockchain-PoS%20%7C%20Multi--Token%20%7C%20zkVM-green?logo=ethereum)]()
-[![Async](https://img.shields.io/badge/Async-Tokio%20%7C%20Rust%20Futures-orange?logo=tokio)]()
+[![Workspace](https://img.shields.io/badge/Architecture-Monorepo%20Workspace-blue)](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html)
+[![QUIC](https://img.shields.io/badge/Transport-ZQUIC%20%7C%20HTTP3-0a8fdc)](https://github.com/ghostkellz/zquic)
+[![Docker](https://img.shields.io/badge/Deployment-Docker%20%7C%20Compose-2496ED?logo=docker)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
 
-> A modular, privacy-respecting Layer-1 blockchain written in **Rust**, designed for secure messaging, anonymous transactions, and ultra-fast consensus.
+> **High-performance blockchain platform** with integrated wallet services, built on Rust workspace architecture with ZQUIC transport and ZCrypto security.
 
 ---
 <p align="center">
-  <img src="https://github.com/ghostkellz/ghostchain/raw/main/assets/gcc-logo.png" alt="GhostChain Logo" width="240"/>
+  <img src="assets/gcc-logo.png" alt="GhostChain Logo" width="240"/>
 </p>
 
 ---
-## 🌐 Project Overview
 
-**GhostChain** is a next-generation blockchain framework focused on:
+## 🏗️ **Workspace Architecture**
 
-* 🔐 End-to-end encryption by default
-* 🌍 QUIC/HTTP3 transport via `quinn`
-* ⚡ Fully async runtime using `tokio`
-* 🧠 Modular architecture for consensus, accounts, state, and contracts
-* 🧩 Flexible VM support (e.g., WASM, interpreted, ZKVM)
-* 🕵️ Zero-trust identity via Ed25519/X25519
-
----
-
-## 📁 Project Structure
+GhostChain uses a **modern Rust workspace** for unified development across multiple services:
 
 ```
-GhostChain
-├── crates/
-│   ├── ghostchain     # Core blockchain logic (blocks, ledger, tx)
-│   ├── ghostnet      # Networking over QUIC
-│   ├── ghostcrypto   # Cryptographic primitives
-│   ├── ghostvm       # Optional WASM/ZK VM
-│   └── gcc           # CLI node and tools
-├── examples/
-│   ├── minimal_node.rs
-│   └── quic_echo.rs
-└── Cargo.toml
+ghostchain/
+├── 📦 Cargo.toml (workspace root)
+├── 🔧 core/           # Blockchain implementation (ghostchain-core)
+├── 🔗 shared/         # Common types, crypto, FFI (ghostchain-shared)
+├── 👻 ghostd/         # Blockchain daemon with ZQUIC
+├── 💼 walletd/        # Secure wallet daemon with identity
+├── 🧪 integration-tests/  # Cross-service testing
+├── 🐳 docker/         # Container deployment
+├── 📋 scripts/        # Build and development tools
+└── 📚 reference-docs/ # Archive and reference materials
 ```
 
----
+## 🚀 **Core Services**
 
-## 🚀 Features Implemented
+### 👻 **GhostD** - Blockchain Daemon
+High-performance blockchain node with consensus and mining capabilities.
 
-✅ **Core Blockchain**
-
-* Advanced block structure with cryptographic hash linking
-* Genesis block creation with configurable parameters
-* Complete transaction system with multiple types
-* Comprehensive state management and validation
-* Block validation and state transitions
-
-✅ **Proof of Stake Consensus**
-
-* Weighted validator selection based on stake
-* Epoch-based validator rotation
-* Performance tracking and slashing mechanics
-* Minimum stake requirements (100k SPIRIT)
-* Active validator management (up to 100 validators)
-
-✅ **Multi-Token System**
-
-* **SPIRIT (SPR):** Gas/utility token (1B supply, 18 decimals)
-* **MANA (MNA):** Contribution rewards (dynamic supply)
-* **RLUSD:** Stablecoin (100M supply, 18 decimals)
-* **SOUL:** Soulbound identity tokens (0 decimals)
-
-✅ **Transaction Types**
-
-* Token transfers
-* Account creation (Ed25519 keys)
-* Staking/unstaking, validator registration
-* Soul token minting, contribution rewards
-
-✅ **P2P Networking Infrastructure**
-
-* QUIC-based networking (via `quinn`)
-* Peer discovery and management
-* Async message handling, NAT traversal
-
-✅ **Persistent Storage**
-
-* Sled-based key-value storage engine
-* Block and account state persistence
-* Transaction and validator history
-
-✅ **Enhanced CLI Interface**
-
-* Account management (create, balance, info)
-* Token operations (transfer, stake, list)
-* Chain, node, and peer info
-* Node/network startup & RPC server management
-
----
-
-## 🔧 Quick Start
+**Features:**
+- **ZQUIC Transport**: Ultra-fast QUIC-based networking
+- **Mining & Consensus**: Automated block production and validation
+- **Multi-Domain ZNS**: ENS, Unstoppable, Web5, and native Ghost domains
+- **Smart Contracts**: Full contract execution with gas metering
+- **Performance Monitoring**: Real-time metrics and optimization
 
 ```bash
-cargo build --release
+# Start mainnet node
+ghostd start --enable-quic --enable-mining
+
+# Start testnet for development
+ghostd start --testnet --bind-address 0.0.0.0:8545
+
+# Get blockchain status
+ghostd status
 ```
 
-**Create a new account:**
+### 💼 **WalletD** - Secure Wallet Daemon
+Advanced wallet management with multi-algorithm support and identity services.
+
+**Features:**
+- **Multi-Algorithm**: Ed25519, Secp256k1, Secp256r1 support
+- **HD Wallets**: Hierarchical deterministic key management
+- **Identity (RealID)**: Decentralized identity management
+- **Hardware Support**: Ready for hardware wallet integration
+- **ZQUIC Integration**: High-performance transport
 
 ```bash
-cargo run -- account new
+# Start wallet daemon
+walletd start --enable-quic
+
+# Create new wallet
+walletd wallet create main --algorithm ed25519
+
+# Create identity
+walletd identity create alice --key-algorithm ed25519
+
+# Send tokens
+walletd wallet send main 0xabc... 1.5 --token GSPR
 ```
 
-**Check chain info:**
+## 🌐 **Token Ecosystem**
 
+- **🌟 GSPR (Ghost Spirit)**: Primary native token (21B max supply)
+- **💎 GCC (GhostChain Credits)**: Utility token for contracts and operations
+- **⚡ GMAN (Ghost Mana)**: Governance and staking rewards (earned through participation)
+- **🔮 SOUL**: Non-transferable identity tokens
+
+## 🔧 **Quick Start**
+
+### Option 1: Docker Deployment (Recommended)
 ```bash
-cargo run -- chain info
+# Development environment
+./scripts/start-dev.sh
+
+# Full production stack
+docker-compose up --build
+
+# Testnet only
+docker-compose -f docker-compose.dev.yml up
 ```
 
-**List available tokens:**
-
+### Option 2: Native Build
 ```bash
-cargo run -- token list
+# Build entire workspace
+cargo build --release --workspace
+
+# Run specific service
+cargo run --bin ghostd -- start --testnet
+cargo run --bin walletd -- start --testnet
 ```
 
-**Start a node with networking:**
-
+### Option 3: Individual Services
 ```bash
-cargo run -- node --bind 0.0.0.0:7777 --chain-id ghostchain-devnet
+# Install and run ghostd
+cargo install --path ghostd
+ghostd start --testnet
+
+# Install and run walletd  
+cargo install --path walletd
+walletd start --testnet
 ```
 
-**Start with persistent storage:**
+## 🐳 **Docker Services**
 
-```bash
-cargo run -- node --bind 0.0.0.0:7777 --data-dir ./ghostchain-data
-```
+The docker-compose setup includes:
 
-**Connect to peers:**
+- **ghostd/walletd**: Main blockchain and wallet services
+- **ghostd-testnet/walletd-testnet**: Development testnet
+- **Redis**: Caching and session storage
+- **PostgreSQL**: Analytics and indexing
+- **Nginx**: Reverse proxy and load balancing
+- **Prometheus/Grafana**: Monitoring and visualization
 
-```bash
-cargo run -- node --bind 0.0.0.0:7778 --peer 127.0.0.1:7777
-```
+**Service Ports:**
+- GhostD RPC: `8545` (mainnet), `18545` (testnet)
+- GhostD API: `8547` (mainnet), `18547` (testnet)
+- WalletD API: `8548` (mainnet), `18548` (testnet)
+- Grafana: `3000` (admin: `ghostchain_admin`)
+- Prometheus: `9090`
 
-**Start RPC server:**
-
-```bash
-cargo run -- rpc --bind 0.0.0.0:8545
-```
-
----
-
-## 🧩 Architecture
-
-* Written in Rust (2024 edition)
-* Async/await with Tokio runtime
-* Modular design (blockchain, consensus, crypto, token, network, storage, CLI)
-* Pluggable consensus and VM engines
-* QUIC networking and async message relay
-
----
-
-## 🏗️ Advanced Features
+## 🔐 **Security & Features**
 
 ### Cryptography
+- **ZCrypto Integration**: Ed25519, Secp256k1, Blake3, SHA256
+- **Quantum-Ready**: Post-quantum cryptography support planned
+- **Hardware Integration**: YubiKey and hardware wallet support
 
-* Ed25519 digital signatures, Blake3 hashing
-* Secure random number generation
-* Address derivation from pubkeys
+### Transport
+- **ZQUIC**: High-performance QUIC implementation in Zig
+- **GhostBridge**: gRPC over QUIC for service communication
+- **IPv6 First**: Native IPv6 support with dual-stack fallback
 
-### Consensus Engine
+### Performance
+- **Async Runtime**: Full Tokio async/await implementation
+- **Multi-Level Caching**: Advanced caching with LRU and TTL
+- **Connection Pooling**: Optimized service communication
+- **Batch Processing**: High-throughput transaction processing
 
-* Pluggable PoS architecture, slashing, epoch rotation
+## 📚 **Documentation**
 
-### Storage Layer
+### Core Documentation
+- **[AUTH.md](AUTH.md)**: Authentication and authorization
+- **[SMARTCONTRACT.md](SMARTCONTRACT.md)**: Smart contract development
+- **[PROTOCOLS.md](PROTOCOLS.md)**: Network protocols and standards
+- **[DOMAINS.md](DOMAINS.md)**: Multi-domain name system (ZNS)
+- **[WEB5.md](WEB5.md)**: Web5 and DID integration
+- **[TOKEN.md](TOKEN.md)**: Token economics and management
 
-* Sled embedded DB, atomic ops, block & state indexing
+### Development
+- **[CLAUDE.md](CLAUDE.md)**: Architecture and development notes
+- **[CONTRACT.md](CONTRACT.md)**: Contract deployment and management
+- **[IDENTITY.md](IDENTITY.md)**: Identity and RealID integration
+- **[WALLET.md](WALLET.md)**: Wallet development and API
 
-### Networking
+### Reference
+- **[reference-docs/](reference-docs/)**: Archive and historical documents
+- **[legacy-archive/](legacy-archive/)**: Previous implementations
 
-* QUIC P2P with peer discovery
-* Async message passing and NAT traversal
+## 🛠️ **Development**
+
+### Building from Source
+```bash
+# Clone repository
+git clone https://github.com/ghostkellz/ghostchain.git
+cd ghostchain
+
+# Build workspace
+cargo build --workspace
+
+# Run tests
+cargo test --workspace
+
+# Run integration tests
+cargo test --package ghostchain-integration-tests
+```
+
+### Development Environment
+```bash
+# Start development stack
+./scripts/start-dev.sh
+
+# Build Docker images
+./scripts/docker-build.sh
+
+# Check services
+curl http://localhost:8547/api/v1/status
+curl http://localhost:8548/health
+```
+
+## 🗺️ **Roadmap**
+
+### ✅ **Completed (v0.3.0)**
+- Monorepo workspace architecture
+- GhostD blockchain daemon with ZQUIC
+- WalletD secure wallet daemon
+- Multi-service Docker deployment
+- Smart contract execution engine
+- Multi-domain name resolution (ENS, UD, Web5, Ghost)
+- Performance monitoring and optimization
+
+### 🚧 **In Progress**
+- ZQUIC FFI integration completion
+- GhostBridge gRPC relay implementation
+- Hardware wallet integration
+- Enhanced security audit
+
+### 📋 **Planned**
+- Web5 DID full implementation
+- Zero-knowledge proof integration
+- Cross-chain interoperability
+- Mobile wallet applications
+- Decentralized exchange (DEX)
+
+## 🤝 **Contributing**
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Build** and test (`cargo test --workspace`)
+4. **Commit** changes (`git commit -m 'Add amazing feature'`)
+5. **Push** to branch (`git push origin feature/amazing-feature`)
+6. **Open** a Pull Request
+
+## 📄 **License**
+
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
+
+## 👤 **Author**
+
+Built by [@ghostkellz](https://github.com/ghostkellz) as part of the **GhostMesh** ecosystem.
 
 ---
 
-## 📊 Performance & Specifications
+**🔗 Related Projects:**
+- [ZQUIC](https://github.com/ghostkellz/zquic) - High-performance QUIC implementation
+- [GhostBridge](https://github.com/ghostkellz/ghostbridge) - Cross-service communication
+- [ZCrypto](https://github.com/ghostkellz/zcrypto) - Cryptographic library
 
-* Proof of Stake: 6s block times, up to 100 validators
-* Embedded Sled DB
-* Ed25519 + Blake3 cryptography
-* Efficient async runtime
-
----
-
-## 🛣️ Roadmap / What's Next
-
-* QUIC/HTTP3 networking completion
-* Smart contract VM (WASM/zkVM)
-* RPC API extensions (JSON-RPC, gRPC)
-* Cross-chain bridge modules
-* GhostVault device-native key management
-* Security audits and optimization
-
----
-
-## 👤 Author
-
-Built by [@ghostkellz](https://github.com/ghostkellz) as part of the GhostMesh ecosystem.
-
+*For additional documentation and references, see the [reference-docs/](reference-docs/) directory.*

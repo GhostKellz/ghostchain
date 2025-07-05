@@ -1,0 +1,76 @@
+# GhostChain Development Environment
+# Simplified setup for local development
+version: '3.8'
+
+services:
+  # Development GhostD (with hot reload and debug features)
+  ghostd-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ghostd
+    container_name: ghostchain-ghostd-dev
+    restart: unless-stopped
+    ports:
+      - "8545:8545"   # RPC
+      - "8547:8547"   # API
+      - "8549:8549"   # QUIC
+    volumes:
+      - ./ghostd-dev-data:/opt/ghostchain/data
+      - ./ghostd-dev-logs:/opt/ghostchain/logs
+      - ./config/ghostd-dev.toml:/opt/ghostchain/config/ghostd.toml
+    environment:
+      - RUST_LOG=debug
+      - GHOSTCHAIN_CHAIN_ID=ghostchain-dev
+      - GHOSTCHAIN_LOG_LEVEL=debug
+    command: [
+      "ghostd", "start",
+      "--testnet",
+      "--enable-quic",
+      "--enable-mining",
+      "--bind-address", "0.0.0.0:8545"
+    ]
+    networks:
+      - ghostchain-dev
+
+  # Development WalletD
+  walletd-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: walletd
+    container_name: ghostchain-walletd-dev
+    restart: unless-stopped
+    ports:
+      - "8548:8548"   # API
+      - "8550:8550"   # QUIC
+    volumes:
+      - ./walletd-dev-data:/opt/ghostchain/wallets
+      - ./walletd-dev-keys:/opt/ghostchain/keys
+      - ./config/walletd-dev.toml:/opt/ghostchain/config/walletd.toml
+    environment:
+      - RUST_LOG=debug
+      - GHOSTCHAIN_GHOSTD_ENDPOINT=http://ghostd-dev:8547
+    command: [
+      "walletd", "start",
+      "--testnet",
+      "--enable-quic",
+      "--bind-address", "0.0.0.0:8548"
+    ]
+    depends_on:
+      - ghostd-dev
+    networks:
+      - ghostchain-dev
+
+  # Redis for development
+  redis-dev:
+    image: redis:7-alpine
+    container_name: ghostchain-redis-dev
+    ports:
+      - "6379:6379"
+    networks:
+      - ghostchain-dev
+
+networks:
+  ghostchain-dev:
+    driver: bridge
