@@ -1,0 +1,209 @@
+version: '3.8'
+
+services:
+  # Core GhostChain blockchain node
+  ghostd:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: ghostchain-node
+    hostname: ghostd
+    ports:
+      - "7777:7777/udp"    # QUIC P2P networking
+      - "8545:8545/tcp"    # JSON-RPC API
+      - "8443:8443/tcp"    # HTTP3 Wraith proxy
+    environment:
+      - GHOSTCHAIN_MODE=production
+      - GHOSTCHAIN_BIND_ADDRESS=::
+      - GHOSTCHAIN_P2P_PORT=7777
+      - GHOSTCHAIN_RPC_PORT=8545
+      - GHOSTCHAIN_HTTP3_PORT=8443
+      - GHOSTCHAIN_DATA_DIR=/var/lib/ghostchain/data
+      - GHOSTCHAIN_LOG_LEVEL=info
+      - GHOSTCHAIN_METRICS_ENABLED=true
+      - GHOSTCHAIN_IPV6_ENABLED=true
+    volumes:
+      - ghostd_data:/var/lib/ghostchain/data
+      - ghostd_logs:/var/lib/ghostchain/logs
+      - ./docker/config:/var/lib/ghostchain/config:ro
+    networks:
+      - ghostchain_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8545/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    command: ["ghostchain", "ghostd", "--production"]
+
+  # Wallet management service
+  walletd:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: ghostchain-wallet
+    hostname: walletd
+    ports:
+      - "3001:3001/tcp"    # HTTP API
+      - "9090:9090/udp"    # QUIC secure channel
+    environment:
+      - GHOSTCHAIN_MODE=production
+      - WALLETD_BIND_ADDRESS=::
+      - WALLETD_HTTP_PORT=3001
+      - WALLETD_QUIC_PORT=9090
+      - WALLETD_KEYSTORE_PATH=/var/lib/ghostchain/wallets
+      - WALLETD_SESSION_TIMEOUT=1800
+      - WALLETD_LOG_LEVEL=info
+    volumes:
+      - walletd_data:/var/lib/ghostchain/wallets
+      - walletd_logs:/var/lib/ghostchain/logs
+    networks:
+      - ghostchain_network
+    depends_on:
+      ghostd:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command: ["ghostchain", "walletd", "--production"]
+
+  # ZNS name service resolver
+  zns-resolver:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: ghostchain-zns
+    hostname: zns
+    ports:
+      - "5353:5353/udp"    # DNS resolver
+      - "8053:8053/tcp"    # DNS-over-HTTPS
+      - "8548:8548/tcp"    # ZNS API
+    environment:
+      - GHOSTCHAIN_MODE=production
+      - ZNS_BIND_ADDRESS=::
+      - ZNS_DNS_PORT=5353
+      - ZNS_DOH_PORT=8053
+      - ZNS_API_PORT=8548
+      - ZNS_CACHE_SIZE=10000
+      - ZNS_CACHE_TTL=3600
+      - ZNS_LOG_LEVEL=info
+    volumes:
+      - zns_cache:/var/lib/ghostchain/cache
+      - zns_logs:/var/lib/ghostchain/logs
+    networks:
+      - ghostchain_network
+    depends_on:
+      ghostd:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8548/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command: ["ghostchain", "zns", "serve", "--production"]
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ghostchain-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - ghostchain_network
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  # Grafana for dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ghostchain-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=ghostchain123
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - ghostchain_network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # Redis for caching and session storage
+  redis:
+    image: redis:7-alpine
+    container_name: ghostchain-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ghostchain_network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ghostchain
+
+  # NGINX reverse proxy for public access
+  nginx:
+    image: nginx:alpine
+    container_name: ghostchain-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - ghostchain_network
+    depends_on:
+      - ghostd
+      - walletd
+      - zns-resolver
+    restart: unless-stopped
+
+volumes:
+  ghostd_data:
+    driver: local
+  ghostd_logs:
+    driver: local
+  walletd_data:
+    driver: local
+  walletd_logs:
+    driver: local
+  zns_cache:
+    driver: local
+  zns_logs:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  redis_data:
+    driver: local
+  nginx_logs:
+    driver: local
+
+networks:
+  ghostchain_network:
+    driver: bridge
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+        - subnet: fd00:dead:beef::/48
