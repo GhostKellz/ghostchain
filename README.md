@@ -192,9 +192,71 @@ zig fetch --save https://github.com/ghostkellz/ghostchain/archive/main.tz
 
 ---
 
-## 🗺️ Roadmap (2025)
+## 🧪 ZEKE: Experimental Zig AI Agent Architecture
+ 
 
-* ...
+ZEKE is a pure Zig, async-first agent system designed for Ghostchain, smart contract automation, network security, and programmable DevOps. It is modular, extensible, and built for future mesh-native, blockchain, and device management operations.
+
+---
+
+## Agent Architecture
+
+### Core Framework (`/src/agent/mod.zig`)
+
+* **Agent trait:** Implements agent logic with function pointers for extensibility
+* **AgentManager:** Orchestrates multiple concurrent agents
+* **AgentType enum:** Defines domains (blockchain, contract, network, security, custom)
+* **AgentResult:** Standardized response for all commands/queries
+
+### Specialized Agents
+
+* **blockchain.zig:** Network ops, gas monitoring, health checks
+* **smartcontract.zig:** Contract deployment, calls, auditing
+* **network.zig:** Network scan, monitoring, traffic analysis
+* **security.zig:** Security scanning, hardening, threat detection
+
+---
+
+## Terminal Integration
+
+The terminal app supports a unified CLI for agent control:
+
+```sh
+# List all available agents
+zeke agent list
+
+# Blockchain operations
+zeke agent blockchain status
+zeke agent blockchain balance 0x123...
+zeke agent blockchain health
+
+# Smart contract interactions
+zeke agent smartcontract deploy <bytecode>
+zeke agent smartcontract call <address> <method>
+zeke agent smartcontract audit <address>
+
+# Network operations
+zeke agent network scan 192.168.1.0/24
+zeke agent network ping google.com
+zeke agent network ports 192.168.1.1
+
+# Security operations
+zeke agent security scan
+zeke agent security monitor
+zeke agent security firewall enable
+```
+
+---
+
+## Key Features
+
+1. **Pure Zig Implementation** — No external dependencies, leveraging Zig's speed
+2. **Extensible Design** — Easy to add new agent types/domains/commands
+3. **Function Pointer Architecture** — Runtime behavior customization
+4. **Standardized Interface** — Consistent CLI & TUI command structure
+5. **Future-Ready** — Scales to mesh, device, LLM/AI, and blockchain automation
+
+---
 
 ---
 
