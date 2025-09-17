@@ -1,0 +1,8 @@
+/data/projects/ghostchain/target/x86_64-unknown-linux-gnu/debug/deps/libjsonrpc_client_transports-1dc027f66b0c24f7.rmeta: /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/lib.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/transports/mod.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/transports/duplex.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/transports/local.rs
+
+/data/projects/ghostchain/target/x86_64-unknown-linux-gnu/debug/deps/jsonrpc_client_transports-1dc027f66b0c24f7.d: /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/lib.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/transports/mod.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/transports/duplex.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/transports/local.rs
+
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/lib.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/transports/mod.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/transports/duplex.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonrpc-client-transports-18.0.0/src/transports/local.rs:

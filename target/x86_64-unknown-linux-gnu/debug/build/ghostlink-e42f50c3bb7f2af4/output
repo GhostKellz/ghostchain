@@ -1,0 +1,7 @@
+cargo:rerun-if-changed=proto/ghostchain.proto
+cargo:rerun-if-changed=proto/ghostid.proto
+cargo:rerun-if-changed=proto/zns.proto
+cargo:rerun-if-changed=proto
+cargo:rerun-if-changed=proto/ghostchain.proto
+cargo:rerun-if-changed=proto/ghostid.proto
+cargo:rerun-if-changed=proto/zns.proto

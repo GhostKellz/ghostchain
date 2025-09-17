@@ -1,0 +1,12 @@
+/data/projects/ghostchain/target/x86_64-unknown-linux-gnu/debug/deps/libsignature-d8de573f49771b92.rmeta: /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/lib.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/hazmat.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/encoding.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/error.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/keypair.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/signer.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/verifier.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/../README.md
+
+/data/projects/ghostchain/target/x86_64-unknown-linux-gnu/debug/deps/signature-d8de573f49771b92.d: /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/lib.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/hazmat.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/encoding.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/error.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/keypair.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/signer.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/verifier.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/../README.md
+
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/lib.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/hazmat.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/encoding.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/error.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/keypair.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/signer.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/verifier.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/signature-2.2.0/src/../README.md:

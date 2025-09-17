@@ -1,408 +1,346 @@
 #!/bin/bash
-# 🚀 GhostChain One-Liner Setup Script
-# Usage: curl -sSL https://raw.githubusercontent.com/ghostkellz/ghostchain/main/setup.sh | bash
+# GhostChain One-liner Setup Script
+# Usage: curl -sSL https://raw.githubusercontent.com/yourrepo/ghostchain/main/setup.sh | bash
 
-set -euo pipefail
+set -e
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-GHOSTCHAIN_VERSION="latest"
-INSTALL_DIR="$HOME/ghostchain"
-COMPOSE_FILE="docker-compose.yml"
-ENV_FILE=".env"
+GHOSTCHAIN_VERSION=${GHOSTCHAIN_VERSION:-"latest"}
+INSTALL_DIR=${INSTALL_DIR:-"/opt/ghostchain"}
+DATA_DIR=${DATA_DIR:-"$HOME/.ghostchain"}
+SETUP_TYPE=${SETUP_TYPE:-"docker"} # docker, native, or lxc
 
-# Print banner
-print_banner() {
-    echo -e "${PURPLE}"
-    echo "    _____ _               _    _____ _           _       "
-    echo "   |  ___| |__   ___  ___| |_ / ____| |__   __ _(_)_ __  "
-    echo "   | |_ | '_ \ / _ \/ __| __| |    | '_ \ / _\` | | '_ \ "
-    echo "   |  _|| | | | (_) \__ \ |_| |____| | | | (_| | | | | |"
-    echo "   |_|  |_| |_|\___/|___/\__|\_____|_| |_|\__,_|_|_| |_|"
-    echo "                                                        "
-    echo -e "${NC}"
-    echo -e "${CYAN}🔗 Pure Zig Blockchain • IPv6 • QUIC • Web5${NC}"
-    echo -e "${CYAN}🚀 One-liner setup for instant node deployment${NC}"
-    echo ""
+echo -e "${BLUE}🚀 GhostChain Setup Script${NC}"
+echo -e "${BLUE}===========================${NC}"
+echo ""
+
+# Function to print colored output
+print_status() {
+    echo -e "${GREEN}[INFO]${NC} $1"
 }
 
-# Check requirements
-check_requirements() {
-    echo -e "${BLUE}📋 Checking requirements...${NC}"
-    
-    # Check if Docker is installed
-    if ! command -v docker &> /dev/null; then
-        echo -e "${RED}❌ Docker is not installed. Please install Docker first.${NC}"
-        echo -e "${YELLOW}💡 Visit: https://docs.docker.com/get-docker/${NC}"
-        exit 1
-    fi
-    
-    # Check if Docker Compose is installed
-    if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-        echo -e "${RED}❌ Docker Compose is not installed. Please install Docker Compose first.${NC}"
-        echo -e "${YELLOW}💡 Visit: https://docs.docker.com/compose/install/${NC}"
-        exit 1
-    fi
-    
-    # Check if curl is installed
-    if ! command -v curl &> /dev/null; then
-        echo -e "${RED}❌ curl is not installed. Please install curl first.${NC}"
-        exit 1
-    fi
-    
-    echo -e "${GREEN}✅ All requirements satisfied${NC}"
+print_warning() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
 }
 
-# Create installation directory
-create_install_dir() {
-    echo -e "${BLUE}📁 Creating installation directory...${NC}"
-    
-    if [ -d "$INSTALL_DIR" ]; then
-        echo -e "${YELLOW}⚠️  Directory $INSTALL_DIR already exists. Backing up...${NC}"
-        mv "$INSTALL_DIR" "${INSTALL_DIR}.backup.$(date +%s)"
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Detect OS
+detect_os() {
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        if command -v lsb_release >/dev/null 2>&1; then
+            OS=$(lsb_release -si)
+            VERSION=$(lsb_release -sr)
+        elif [ -f /etc/os-release ]; then
+            . /etc/os-release
+            OS=$NAME
+            VERSION=$VERSION_ID
+        fi
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        OS="macOS"
+        VERSION=$(sw_vers -productVersion)
+    else
+        print_error "Unsupported operating system: $OSTYPE"
+        exit 1
     fi
     
+    print_status "Detected OS: $OS $VERSION"
+}
+
+# Install dependencies
+install_dependencies() {
+    print_status "Installing dependencies..."
+    
+    if [[ "$OS" == *"Ubuntu"* ]] || [[ "$OS" == *"Debian"* ]]; then
+        sudo apt-get update
+        sudo apt-get install -y curl wget git build-essential pkg-config libssl-dev
+        
+        if [ "$SETUP_TYPE" = "docker" ]; then
+            # Install Docker
+            if ! command -v docker >/dev/null 2>&1; then
+                curl -fsSL https://get.docker.com | sh
+                sudo usermod -aG docker $USER
+                print_warning "Please logout and login again to use Docker without sudo"
+            fi
+            
+            # Install Docker Compose
+            if ! command -v docker-compose >/dev/null 2>&1; then
+                sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                sudo chmod +x /usr/local/bin/docker-compose
+            fi
+        fi
+        
+        if [ "$SETUP_TYPE" = "native" ]; then
+            # Install Rust
+            if ! command -v rustc >/dev/null 2>&1; then
+                curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+                source $HOME/.cargo/env
+            fi
+        fi
+        
+    elif [[ "$OS" == *"CentOS"* ]] || [[ "$OS" == *"Red Hat"* ]] || [[ "$OS" == *"Fedora"* ]]; then
+        sudo yum update -y
+        sudo yum install -y curl wget git gcc gcc-c++ make pkgconfig openssl-devel
+        
+        if [ "$SETUP_TYPE" = "docker" ]; then
+            if ! command -v docker >/dev/null 2>&1; then
+                curl -fsSL https://get.docker.com | sh
+                sudo usermod -aG docker $USER
+                sudo systemctl enable docker
+                sudo systemctl start docker
+            fi
+        fi
+        
+    elif [[ "$OS" == "macOS" ]]; then
+        if ! command -v brew >/dev/null 2>&1; then
+            print_error "Homebrew is required on macOS. Please install it first."
+            exit 1
+        fi
+        
+        brew install curl wget git openssl pkg-config
+        
+        if [ "$SETUP_TYPE" = "docker" ]; then
+            if ! command -v docker >/dev/null 2>&1; then
+                print_error "Please install Docker Desktop for Mac"
+                exit 1
+            fi
+        fi
+    fi
+}
+
+# Setup Docker deployment
+setup_docker() {
+    print_status "Setting up GhostChain with Docker..."
+    
+    # Create project directory
     mkdir -p "$INSTALL_DIR"
     cd "$INSTALL_DIR"
     
-    echo -e "${GREEN}✅ Created $INSTALL_DIR${NC}"
-}
-
-# Download configuration files
-download_configs() {
-    echo -e "${BLUE}⬇️  Downloading GhostChain configuration...${NC}"
+    # Download docker files
+    print_status "Downloading Docker configuration..."
+    wget -O docker-compose.yml https://raw.githubusercontent.com/ghostkellz/ghostchain/main/docker-compose.yml
+    wget -O Dockerfile https://raw.githubusercontent.com/ghostkellz/ghostchain/main/Dockerfile
     
-    # Download docker-compose.yml
-    curl -sSL -o "$COMPOSE_FILE" "https://blockchain.cktechx.com/ghostchain/docker-compose.yml"
+    mkdir -p docker
+    wget -O docker/entrypoint.sh https://raw.githubusercontent.com/ghostkellz/ghostchain/main/docker/entrypoint.sh
+    chmod +x docker/entrypoint.sh
     
-    # Download additional config files
-    mkdir -p docker/{config,nginx,prometheus,grafana}
+    # Start services
+    print_status "Starting GhostChain services..."
+    docker-compose up -d
     
-    # Download nginx config
-    curl -sSL -o docker/nginx/nginx.conf "https://blockchain.cktechx.com/ghostchain/docker/nginx/nginx.conf"
+    # Wait for services to start
+    print_status "Waiting for services to start..."
+    sleep 30
     
-    # Download prometheus config
-    curl -sSL -o docker/prometheus/prometheus.yml "https://blockchain.cktechx.com/ghostchain/docker/prometheus/prometheus.yml"
-    
-    echo -e "${GREEN}✅ Downloaded configuration files${NC}"
-}
-
-# Create environment file
-create_env_file() {
-    echo -e "${BLUE}⚙️  Creating environment configuration...${NC}"
-    
-    # Get public IP for configuration
-    PUBLIC_IP=$(curl -s https://ipv4.icanhazip.com || echo "127.0.0.1")
-    
-    cat > "$ENV_FILE" << EOF
-# GhostChain Configuration
-GHOSTCHAIN_VERSION=$GHOSTCHAIN_VERSION
-PUBLIC_IP=$PUBLIC_IP
-DOMAIN_NAME=localhost
-
-# Network Configuration
-GHOSTCHAIN_P2P_PORT=7777
-GHOSTCHAIN_RPC_PORT=8545
-GHOSTCHAIN_HTTP3_PORT=8443
-WALLETD_PORT=3001
-ZNS_PORT=8548
-
-# Security
-GRAFANA_ADMIN_PASSWORD=ghostchain$(openssl rand -hex 8)
-REDIS_PASSWORD=ghostchain$(openssl rand -hex 12)
-
-# Features
-ENABLE_MONITORING=true
-ENABLE_IPV6=true
-ENABLE_METRICS=true
-ENABLE_CORS=true
-
-# Deployment
-DEPLOYMENT_MODE=production
-LOG_LEVEL=info
-EOF
-    
-    echo -e "${GREEN}✅ Created environment configuration${NC}"
-    echo -e "${YELLOW}📝 Configuration saved to $ENV_FILE${NC}"
-}
-
-# Setup networking
-setup_networking() {
-    echo -e "${BLUE}🌐 Setting up networking...${NC}"
-    
-    # Enable IPv6 if not already enabled
-    if ! docker network ls | grep -q ghostchain_network; then
-        echo -e "${CYAN}📡 Creating IPv6-enabled Docker network...${NC}"
-        # Network will be created by docker-compose
-    fi
-    
-    # Check for port conflicts
-    local ports=(7777 8545 8443 3001 8548 9091 3000 6379 80 443)
-    local conflicts=()
-    
-    for port in "${ports[@]}"; do
-        if netstat -ln 2>/dev/null | grep -q ":$port "; then
-            conflicts+=("$port")
-        fi
-    done
-    
-    if [ ${#conflicts[@]} -gt 0 ]; then
-        echo -e "${YELLOW}⚠️  Port conflicts detected: ${conflicts[*]}${NC}"
-        echo -e "${YELLOW}💡 You may need to stop conflicting services or modify ports in $COMPOSE_FILE${NC}"
-    fi
-    
-    echo -e "${GREEN}✅ Network configuration complete${NC}"
-}
-
-# Pull and build images
-build_images() {
-    echo -e "${BLUE}🏗️  Building GhostChain images...${NC}"
-    echo -e "${CYAN}📦 This may take a few minutes on first run...${NC}"
-    
-    # Pull pre-built images and build custom ones
-    docker-compose pull --ignore-pull-failures
-    docker-compose build --parallel
-    
-    echo -e "${GREEN}✅ Images built successfully${NC}"
-}
-
-# Start services
-start_services() {
-    echo -e "${BLUE}🚀 Starting GhostChain services...${NC}"
-    
-    # Start core services first
-    echo -e "${CYAN}🔗 Starting blockchain node...${NC}"
-    docker-compose up -d ghostd
-    
-    # Wait for ghostd to be healthy
-    echo -e "${CYAN}⏳ Waiting for blockchain node to be ready...${NC}"
-    timeout 120 sh -c 'until docker-compose exec ghostd curl -f http://localhost:8545/health >/dev/null 2>&1; do sleep 2; done' || {
-        echo -e "${RED}❌ Blockchain node failed to start within 2 minutes${NC}"
-        show_logs
-        exit 1
-    }
-    
-    # Start remaining services
-    echo -e "${CYAN}💼 Starting wallet service...${NC}"
-    docker-compose up -d walletd
-    
-    echo -e "${CYAN}🌍 Starting ZNS resolver...${NC}"
-    docker-compose up -d zns-resolver
-    
-    # Start monitoring if enabled
-    if grep -q "ENABLE_MONITORING=true" "$ENV_FILE"; then
-        echo -e "${CYAN}📊 Starting monitoring stack...${NC}"
-        docker-compose up -d prometheus grafana
-    fi
-    
-    # Start additional services
-    echo -e "${CYAN}🔧 Starting additional services...${NC}"
-    docker-compose up -d redis nginx
-    
-    echo -e "${GREEN}✅ All services started successfully${NC}"
-}
-
-# Show service status
-show_status() {
-    echo -e "${BLUE}📊 Service Status:${NC}"
-    docker-compose ps
-    
-    echo ""
-    echo -e "${BLUE}🌐 Service URLs:${NC}"
-    echo -e "${GREEN}🔗 Blockchain RPC:${NC}    http://localhost:8545"
-    echo -e "${GREEN}💼 Wallet API:${NC}       http://localhost:3001"
-    echo -e "${GREEN}🌍 ZNS Resolver:${NC}     http://localhost:8548"
-    echo -e "${GREEN}📊 Grafana Dashboard:${NC} http://localhost:3000"
-    echo -e "${GREEN}📈 Prometheus:${NC}       http://localhost:9091"
-    
-    echo ""
-    echo -e "${BLUE}🔑 Default Credentials:${NC}"
-    if [ -f "$ENV_FILE" ]; then
-        local grafana_pass=$(grep GRAFANA_ADMIN_PASSWORD "$ENV_FILE" | cut -d'=' -f2)
-        echo -e "${CYAN}Grafana:${NC} admin / $grafana_pass"
-    fi
-}
-
-# Show logs function
-show_logs() {
-    echo -e "${BLUE}📋 Recent logs:${NC}"
-    docker-compose logs --tail=20
-}
-
-# Health check
-health_check() {
-    echo -e "${BLUE}🏥 Running health checks...${NC}"
-    
-    local services=("ghostd:8545" "walletd:3001" "zns-resolver:8548")
-    local healthy=0
-    
-    for service in "${services[@]}"; do
-        local name=$(echo "$service" | cut -d':' -f1)
-        local port=$(echo "$service" | cut -d':' -f2)
-        
-        if curl -sf "http://localhost:$port/health" >/dev/null 2>&1; then
-            echo -e "${GREEN}✅ $name is healthy${NC}"
-            ((healthy++))
-        else
-            echo -e "${RED}❌ $name is not responding${NC}"
-        fi
-    done
-    
-    echo -e "${BLUE}📊 Health Summary: $healthy/3 services healthy${NC}"
-    
-    if [ $healthy -eq 3 ]; then
-        echo -e "${GREEN}🎉 All core services are running perfectly!${NC}"
-        return 0
+    # Check health
+    if curl -f http://localhost:8545/health >/dev/null 2>&1; then
+        print_status "✅ GhostChain is running successfully!"
+        print_status "RPC endpoint: http://localhost:8545"
+        print_status "P2P port: 7777"
+        print_status "Grafana dashboard: http://localhost:3000 (admin/ghostchain_admin)"
     else
-        echo -e "${YELLOW}⚠️  Some services may need more time to start${NC}"
-        return 1
+        print_error "❌ GhostChain failed to start. Check logs with: docker-compose logs"
     fi
 }
 
-# Quick start function
-quick_start() {
-    echo -e "${CYAN}⚡ Quick Start Commands:${NC}"
-    echo ""
-    echo -e "${YELLOW}# Create a wallet${NC}"
-    echo "curl -X POST http://localhost:3001/api/v1/auth/login -d '{\"username\":\"admin\",\"password\":\"admin\"}'"
-    echo ""
-    echo -e "${YELLOW}# Check blockchain status${NC}"
-    echo "curl http://localhost:8545/health"
-    echo ""
-    echo -e "${YELLOW}# Resolve a .ghost domain${NC}"
-    echo "curl http://localhost:8548/api/v1/zns/example.ghost"
-    echo ""
-    echo -e "${YELLOW}# View logs${NC}"
-    echo "docker-compose logs -f ghostd"
-    echo ""
-    echo -e "${YELLOW}# Stop all services${NC}"
-    echo "docker-compose down"
-    echo ""
-    echo -e "${YELLOW}# Update to latest version${NC}"
-    echo "docker-compose pull && docker-compose up -d"
+# Setup native installation
+setup_native() {
+    print_status "Setting up GhostChain natively..."
+    
+    # Clone repository
+    if [ ! -d "$INSTALL_DIR" ]; then
+        git clone https://github.com/ghostkellz/ghostchain.git "$INSTALL_DIR"
+    fi
+    
+    cd "$INSTALL_DIR"
+    
+    # Build
+    print_status "Building GhostChain..."
+    cargo build --release
+    
+    # Install binary
+    sudo cp target/release/ghostchain /usr/local/bin/
+    
+    # Create systemd service
+    create_systemd_service
+    
+    # Start service
+    sudo systemctl enable ghostchain
+    sudo systemctl start ghostchain
+    
+    print_status "✅ GhostChain installed and started!"
+    print_status "Status: sudo systemctl status ghostchain"
+    print_status "Logs: sudo journalctl -u ghostchain -f"
 }
 
-# Cleanup function
-cleanup() {
-    echo -e "${BLUE}🧹 Cleaning up...${NC}"
-    docker-compose down --remove-orphans
-}
-
-# Main installation function
-main() {
-    print_banner
+# Setup LXC container
+setup_lxc() {
+    print_status "Setting up GhostChain LXC container..."
     
-    echo -e "${BLUE}🚀 Starting GhostChain installation...${NC}"
-    echo ""
+    # Check if LXD is installed
+    if ! command -v lxc >/dev/null 2>&1; then
+        print_status "Installing LXD..."
+        sudo snap install lxd
+        sudo lxd init --auto
+        sudo usermod -aG lxd $USER
+        print_warning "Please logout and login again to use LXC"
+        return
+    fi
     
-    check_requirements
-    create_install_dir
-    download_configs
-    create_env_file
-    setup_networking
-    build_images
-    start_services
+    # Create container
+    print_status "Creating GhostChain LXC container..."
+    lxc launch ubuntu:22.04 ghostchain
     
-    echo ""
-    echo -e "${GREEN}🎉 GhostChain installation completed successfully!${NC}"
-    echo ""
-    
-    show_status
-    echo ""
-    
-    # Wait a moment for services to fully start
-    echo -e "${CYAN}⏳ Performing final health checks...${NC}"
+    # Wait for container to start
     sleep 10
     
-    if health_check; then
-        echo ""
-        echo -e "${GREEN}🚀 GhostChain is now running and ready to use!${NC}"
-        quick_start
-    else
-        echo ""
-        echo -e "${YELLOW}⚠️  Installation completed but some services need more time${NC}"
-        echo -e "${CYAN}💡 Run 'docker-compose logs' to check service status${NC}"
-    fi
+    # Setup container
+    print_status "Setting up container..."
+    lxc exec ghostchain -- apt-get update
+    lxc exec ghostchain -- apt-get install -y curl wget git build-essential pkg-config libssl-dev
     
-    echo ""
-    echo -e "${PURPLE}🔗 Welcome to the GhostChain network!${NC}"
+    # Install Rust in container
+    lxc exec ghostchain -- curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    
+    # Clone and build GhostChain
+    lxc exec ghostchain -- git clone https://github.com/ghostkellz/ghostchain.git /opt/ghostchain
+    lxc exec ghostchain -- bash -c "cd /opt/ghostchain && source ~/.cargo/env && cargo build --release"
+    
+    # Configure ports
+    lxc config device add ghostchain p2p proxy listen=tcp:0.0.0.0:7777 connect=tcp:127.0.0.1:7777
+    lxc config device add ghostchain rpc proxy listen=tcp:0.0.0.0:8545 connect=tcp:127.0.0.1:8545
+    
+    # Start GhostChain
+    lxc exec ghostchain -- bash -c "cd /opt/ghostchain && nohup ./target/release/ghostchain node --bind 0.0.0.0:7777 --rpc-port 8545 > /var/log/ghostchain.log 2>&1 &"
+    
+    print_status "✅ GhostChain LXC container created and started!"
+    print_status "Container: lxc exec ghostchain -- bash"
+    print_status "Logs: lxc exec ghostchain -- tail -f /var/log/ghostchain.log"
 }
 
-# Handle script arguments
-case "${1:-install}" in
-    "install"|"")
-        main
-        ;;
-    "status")
-        cd "$INSTALL_DIR" 2>/dev/null || { echo "GhostChain not installed"; exit 1; }
-        show_status
-        ;;
-    "health")
-        cd "$INSTALL_DIR" 2>/dev/null || { echo "GhostChain not installed"; exit 1; }
-        health_check
-        ;;
-    "logs")
-        cd "$INSTALL_DIR" 2>/dev/null || { echo "GhostChain not installed"; exit 1; }
-        show_logs
-        ;;
-    "stop")
-        cd "$INSTALL_DIR" 2>/dev/null || { echo "GhostChain not installed"; exit 1; }
-        docker-compose down
-        echo -e "${GREEN}✅ GhostChain stopped${NC}"
-        ;;
-    "start")
-        cd "$INSTALL_DIR" 2>/dev/null || { echo "GhostChain not installed"; exit 1; }
-        docker-compose up -d
-        echo -e "${GREEN}✅ GhostChain started${NC}"
-        ;;
-    "restart")
-        cd "$INSTALL_DIR" 2>/dev/null || { echo "GhostChain not installed"; exit 1; }
-        docker-compose restart
-        echo -e "${GREEN}✅ GhostChain restarted${NC}"
-        ;;
-    "update")
-        cd "$INSTALL_DIR" 2>/dev/null || { echo "GhostChain not installed"; exit 1; }
-        docker-compose pull
-        docker-compose up -d
-        echo -e "${GREEN}✅ GhostChain updated${NC}"
-        ;;
-    "uninstall")
-        read -p "Are you sure you want to completely remove GhostChain? (y/N): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            cd "$INSTALL_DIR" 2>/dev/null && cleanup
-            rm -rf "$INSTALL_DIR"
-            echo -e "${GREEN}✅ GhostChain uninstalled${NC}"
-        fi
-        ;;
-    "help"|"-h"|"--help")
-        echo "GhostChain Setup Script"
-        echo ""
-        echo "Usage: $0 [command]"
-        echo ""
-        echo "Commands:"
-        echo "  install    Install and start GhostChain (default)"
-        echo "  status     Show service status"
-        echo "  health     Run health checks"
-        echo "  logs       Show recent logs"
-        echo "  start      Start all services"
-        echo "  stop       Stop all services"
-        echo "  restart    Restart all services"
-        echo "  update     Update to latest version"
-        echo "  uninstall  Remove GhostChain completely"
-        echo "  help       Show this help message"
-        ;;
-    *)
-        echo "Unknown command: $1"
-        echo "Run '$0 help' for usage information"
-        exit 1
-        ;;
-esac
+# Create systemd service
+create_systemd_service() {
+    print_status "Creating systemd service..."
+    
+    sudo tee /etc/systemd/system/ghostchain.service > /dev/null << EOF
+[Unit]
+Description=GhostChain Node
+After=network.target
+
+[Service]
+Type=simple
+User=ghostchain
+Group=ghostchain
+ExecStart=/usr/local/bin/ghostchain node --bind 0.0.0.0:7777 --rpc-port 8545 --data-dir $DATA_DIR
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    # Create ghostchain user
+    if ! id "ghostchain" &>/dev/null; then
+        sudo useradd -r -s /bin/false -d "$DATA_DIR" ghostchain
+        sudo mkdir -p "$DATA_DIR"
+        sudo chown ghostchain:ghostchain "$DATA_DIR"
+    fi
+    
+    sudo systemctl daemon-reload
+}
+
+# Show usage information
+show_usage() {
+    echo -e "${BLUE}GhostChain Setup Options:${NC}"
+    echo ""
+    echo "Environment Variables:"
+    echo "  SETUP_TYPE=docker|native|lxc  (default: docker)"
+    echo "  INSTALL_DIR=/path/to/install   (default: /opt/ghostchain)"
+    echo "  DATA_DIR=/path/to/data         (default: ~/.ghostchain)"
+    echo ""
+    echo "Examples:"
+    echo "  # Docker setup (recommended)"
+    echo "  curl -sSL setup.sh | bash"
+    echo ""
+    echo "  # Native installation"
+    echo "  curl -sSL setup.sh | SETUP_TYPE=native bash"
+    echo ""
+    echo "  # LXC container"
+    echo "  curl -sSL setup.sh | SETUP_TYPE=lxc bash"
+    echo ""
+    echo "  # Custom paths"
+    echo "  curl -sSL setup.sh | INSTALL_DIR=/custom/path DATA_DIR=/custom/data bash"
+}
+
+# Main setup logic
+main() {
+    detect_os
+    install_dependencies
+    
+    case "$SETUP_TYPE" in
+        "docker")
+            setup_docker
+            ;;
+        "native")
+            setup_native
+            ;;
+        "lxc")
+            setup_lxc
+            ;;
+        *)
+            print_error "Unknown setup type: $SETUP_TYPE"
+            show_usage
+            exit 1
+            ;;
+    esac
+    
+    print_status "🎉 GhostChain setup completed!"
+    echo ""
+    echo "Next steps:"
+    echo "1. Test the installation: ghostchain --help"
+    echo "2. Start a local testnet: ghostchain chain testnet"
+    echo "3. Run integration tests: ghostchain services test-domains"
+    echo "4. Check the documentation: https://docs.ghostchain.org"
+}
+
+# Handle command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --help|-h)
+            show_usage
+            exit 0
+            ;;
+        --type)
+            SETUP_TYPE="$2"
+            shift 2
+            ;;
+        --install-dir)
+            INSTALL_DIR="$2"
+            shift 2
+            ;;
+        --data-dir)
+            DATA_DIR="$2"
+            shift 2
+            ;;
+        *)
+            print_error "Unknown option: $1"
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+# Run main setup
+main

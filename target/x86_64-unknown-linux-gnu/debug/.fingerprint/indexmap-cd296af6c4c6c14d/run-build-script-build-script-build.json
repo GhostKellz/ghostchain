@@ -1,0 +1,1 @@
+{"rustc":15597765236515928571,"features":"","declared_features":"","target":0,"profile":0,"path":0,"deps":[[14923790796823607459,"build_script_build",false,7365691808325941670]],"local":[{"RerunIfChanged":{"output":"x86_64-unknown-linux-gnu/debug/build/indexmap-cd296af6c4c6c14d/output","paths":["build.rs"]}}],"rustflags":["-C","target-cpu=native"],"config":0,"compile_kind":0}

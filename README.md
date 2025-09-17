@@ -1,293 +1,259 @@
-# 👻 GhostChain (Zig Edition)
+# 👻 GhostChain
 
-> **The next-gen pure Zig blockchain platform:** blazing-fast ledger, mesh-native, quantum-secure, full identity stack, and smart contracts—all in Zig.
+[![Rust](https://img.shields.io/badge/Rust-2024-informational?logo=rust)](https://www.rust-lang.org/)
+[![Workspace](https://img.shields.io/badge/Architecture-Monorepo%20Workspace-blue)](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html)
+[![Shroud](https://img.shields.io/badge/Transport-Shroud%20%7C%20QUIC%20%7C%20HTTP3-0a8fdc)](https://github.com/ghostkellz/shroud)
+[![Docker](https://img.shields.io/badge/Deployment-Docker%20%7C%20Compose-2496ED?logo=docker)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
+
+> **High-performance blockchain platform** with integrated wallet services, built on Rust workspace architecture with Shroud transport and native Zig cryptography.
+
+---
+<p align="center">
+  <img src="assets/gcc-logo.png" alt="GhostChain Logo" width="240"/>
+</p>
 
 ---
 
-## ⚡ Zig is Now Canonical!
+## 🏗️ **Workspace Architecture**
 
-> **Note:** The Zig implementation is now the canonical and actively developed version of GhostChain. The Rust workspace is archived as a legacy reference. **All new features, modules, and security upgrades are now Zig-first.**
+GhostChain uses a **modern Rust workspace** for unified development across multiple services:
 
----
-
-## 🚦 Core Zig Integrations
-
-GhostChain integrates the entire Ghostkellz Zig ecosystem:
-
-* [zledger](https://github.com/ghostkellz/zledger) — Distributed ledger core
-* [zsig](https://github.com/ghostkellz/zsig) — Digital signatures & multisig
-* [zquic](https://github.com/ghostkellz/zquic) — QUIC protocol networking
-* [ghostnet](https://github.com/ghostkellz/ghostnet) — Mesh overlay networking
-* [zcrypto](https://github.com/ghostkellz/zcrypto) — Cryptographic primitives
-* [zwallet](https://github.com/ghostkellz/zwallet) — HD wallet & key management
-* [keystone](https://github.com/ghostkellz/keystone) — Node bootstrap & network identity
-* [zvm](https://github.com/ghostkellz/zvm) — WASM/EVM-compatible smart contract VM
-* [zns](https://github.com/ghostkellz/zns) — Zig Name System
-* [wraith](https://github.com/ghostkellz/wraith) — Programmable reverse proxy
-* [shroud](https://github.com/ghostkellz/shroud) — Identity & privacy (DID, SSO, ZKP)
-* [zsync](https://github.com/ghostkellz/zsync) — Async runtime/synchronization
-* [cns](https://github.com/ghostkellz/cns) — Chain Name Service (legacy/interoperability)
-
-You can fetch any component with Zig:
-
-```sh
-zig fetch --save https://github.com/ghostkellz/<project>/archive/main.tz
+```
+ghostchain/
+├── 📦 Cargo.toml (workspace root)
+├── 🔧 core/           # Blockchain implementation (ghostchain-core)
+├── 🔗 shared/         # Common types, crypto, FFI (ghostchain-shared)
+├── 👻 ghostd/         # Blockchain daemon with Shroud
+├── 💼 walletd/        # Secure wallet daemon with identity
+├── 🧪 integration-tests/  # Cross-service testing
+├── 🐳 docker/         # Container deployment
+├── 📋 scripts/        # Build and development tools
+└── 📚 reference-docs/ # Archive and reference materials
 ```
 
----
+## 🚀 **Core Services**
 
-## 🧭 Ghostchain ZNS Domains (arc/warp/gcp v2)
+### 👻 **GhostD** - Blockchain Daemon
+High-performance blockchain node with consensus and mining capabilities.
 
-This section defines the namespace TLDs (top-level domains) used in the Ghostchain ZNS (Zig Name System), Ghostchain’s native decentralized naming layer. These domains provide zero-trust identity, smart contract routing, cryptographic key mapping, service resolution, scaling, bridging, and analytics.
+**Features:**
+- **Shroud Transport**: Ultra-fast QUIC/HTTP3-based networking via ghostwire
+- **Mining & Consensus**: Automated block production and validation
+- **Multi-Domain ZNS**: ENS, Unstoppable, Web5, and native Ghost domains
+- **Smart Contracts**: Full contract execution with gas metering
+- **Performance Monitoring**: Real-time metrics and optimization
 
-### 🧬 Core Identity Domains
+```bash
+# Start mainnet node
+ghostd start --enable-quic --enable-mining
 
-| Domain   | Description                                                                                                       |
-| -------- | ----------------------------------------------------------------------------------------------------------------- |
-| `.ghost` | Root domain of Ghostchain identities and services. Reserved for core system nodes and canonical identity anchors. |
-| `.gcc`   | GhostChain Contracts — used for contracts, DAOs, and on-chain logic entities.                                     |
-| `.sig`   | Signature authorities and verifiers (maps to public signing keys or validators).                                  |
-| `.gpk`   | Ghostchain Public Key registry — generic identity key mapping layer.                                              |
-| `.key`   | Public key alias domain (interchangeable with `.gpk` but scoped to manual entries).                               |
-| `.pin`   | Persistent Identity Node — stable DID/device/service binding. Sessionless identities or hardware-bound.           |
+# Start testnet for development
+ghostd start --testnet --bind-address 0.0.0.0:8545
 
-### 🌐 Arc/Warp/GCP Ecosystem Domains
+# Get blockchain status
+ghostd status
+```
 
-| Domain  | Description                                                                           |
-| ------- | ------------------------------------------------------------------------------------- |
-| `.warp` | GhostPlane Layer 2 rollups, batchers, bridges, and L2-native services.                |
-| `.arc`  | Cross-domain (L1/L2) bridges, protocol governance, analytics, DAOs, protocol anchors. |
-| `.gcp`  | GhostChain Platform: system admin, registry contracts, privileged utilities.          |
+### 💼 **WalletD** - Secure Wallet Daemon
+Advanced wallet management with multi-algorithm support and identity services.
 
-### 🔗 Decentralized & Blockchain Infrastructure
+**Features:**
+- **Multi-Algorithm**: Ed25519, Secp256k1, Secp256r1 support
+- **HD Wallets**: Hierarchical deterministic key management
+- **Identity (RealID)**: Decentralized identity management
+- **Hardware Support**: Ready for hardware wallet integration
+- **Shroud Integration**: High-performance transport and cryptography
 
-| Domain | Description                                                                           |
-| ------ | ------------------------------------------------------------------------------------- |
-| `.bc`  | General blockchain assets and services, interoperable with other chains.              |
-| `.zns` | Root namespace registry (similar to `.eth` for ENS, controls TLDs within Ghostchain). |
-| `.ops` | Operational nodes — infrastructure endpoints, gateways, proxies, observability units. |
+```bash
+# Start wallet daemon
+walletd start --enable-quic
 
-### 📂 Reserved for Future/Extension Use
+# Create new wallet
+walletd wallet create main --algorithm ed25519
 
-| Domain | Description                                                                      |
-| ------ | -------------------------------------------------------------------------------- |
-| `.sid` | Secure identity domain (may be used for ephemeral tokens or session-based DID).  |
-| `.dvm` | Decentralized Virtual Machine domains (ghostVM, zkVM or Wasm runtime instances). |
-| `.tmp` | Temporary identity bindings or sandbox test chains.                              |
-| `.dbg` | Debug/testnet addresses — useful for ZNS test environments or dummy data.        |
-| `.lib` | Shared contract libraries and reusable ghostchain modules.                       |
-| `.txo` | Transaction-output indexed namespaces (ideal for financial contracts or flows).  |
+# Create identity
+walletd identity create alice --key-algorithm ed25519
 
-**Note:** These domains are managed by the root ZNS registry contract (`registry.gcp` or `zns.ghost`) and enforced via GhostToken signature validation through `realid` and `zsig`.
+# Send tokens
+walletd wallet send main 0xabc... 1.5 --token GSPR
+```
 
----
+## 🌐 **Token Ecosystem**
 
-## 🌐 GhostChain Web5 Vision
+- **🌟 GSPR (Ghost Spirit)**: Primary native token (21B max supply)
+- **💎 GCC (GhostChain Credits)**: Utility token for contracts and operations
+- **⚡ GMAN (Ghost Mana)**: Governance and staking rewards (earned through participation)
+- **🔮 SOUL**: Non-transferable identity tokens
 
-GhostChain is designed for the next evolution of the internet: **Web5**.
+## 🔧 **Quick Start**
 
-* **Web5 merges Web2 infrastructure (DNS, TLS, HTTP) with Web3 decentralization, identity, and programmable logic.**
-* **Ghostchain powers cryptographically secure, real-time, programmable internet applications.**
-* **Backwards-compatible with IPv4/HTTP but built for QUIC, HTTP/3, gRPC, and IPv6.**
+### Option 1: Docker Deployment (Recommended)
+```bash
+# Development environment
+./scripts/start-dev.sh
 
-### Goals
+# Full production stack
+docker-compose up --build
 
-* ✅ Reclaim identity and trust from centralized silos (Google, Meta, CAs)
-* ✅ Build a user-first, programmable protocol stack
-* ✅ Support smart contracts, payments, messaging, and decentralized apps (dApps)
-* ✅ Enable low-latency, privacy-preserving applications
-* ✅ Operate on existing hardware and global internet
+# Testnet only
+docker-compose -f docker-compose.dev.yml up
+```
 
-### Tech Stack Foundations
+### Option 2: Native Build
+```bash
+# Build entire workspace
+cargo build --release --workspace
 
-| Layer           | Technology Used                     | Purpose                                       |
-| --------------- | ----------------------------------- | --------------------------------------------- |
-| Transport       | QUIC + HTTP/3 + gRPC                | Real-time, secure, efficient communication    |
-| Addressing      | IPv6 + DNS + DID + cDNS             | Global addressing with decentralized IDs      |
-| Identity        | zkID + DID + Verifiable Credentials | Privacy-aware identity with recoverability    |
-| Trust Layer     | GhostChain (PoS + PoC)              | Fast, eco-friendly consensus & record anchor  |
-| Auth + Access   | GhostSSO, OIDC bridges              | Seamless auth across dApps and legacy systems |
-| Smart Contracts | WASM, Zig VM                        | Gas-efficient, deterministic compute          |
-| Data Layer      | GhostVault + zkStorage + IPFS       | Secure storage of user and state data         |
+# Run specific service
+cargo run --bin ghostd -- start --testnet
+cargo run --bin walletd -- start --testnet
+```
 
-### Unique Web5 Features
+### Option 3: Individual Services
+```bash
+# Install and run ghostd
+cargo install --path ghostd
+ghostd start --testnet
 
-* 🧱 Programmable internet stack (smart cDNS, programmable TLS)
-* 🪪 GhostID and QID as universal identity anchors
-* 🔄 Built-in cryptographic recovery
-* 🔍 Auditable but privacy-respecting by design
-* 💡 Runs on today’s infrastructure—Linux, nginx, Docker, browsers
+# Install and run walletd  
+cargo install --path walletd
+walletd start --testnet
+```
 
-### Security Model
+## 🐳 **Docker Services**
 
-* ZK-based proofs for identity & claims
-* QUIC + TLS 1.3 for all transport
-* cDNS + DNSSEC + DANE-like record verification
-* Mesh-aware firewalls and routing via GhostMesh
+The docker-compose setup includes:
 
-### Adoption Path
+- **ghostd/walletd**: Main blockchain and wallet services
+- **ghostd-testnet/walletd-testnet**: Development testnet
+- **Redis**: Caching and session storage
+- **PostgreSQL**: Analytics and indexing
+- **Nginx**: Reverse proxy and load balancing
+- **Prometheus/Grafana**: Monitoring and visualization
 
-1. GhostChain testnet over GhostMesh and Web2
-2. cDNS and GhostDNS for secure domain routing
-3. GhostVault as default identity, key, and config provider
-4. Web5 SDK for dApp and CLI tool developers
-5. Backwards-compatible public gateway for Web2 interaction
+**Service Ports:**
+- GhostD RPC: `8545` (mainnet), `18545` (testnet)
+- GhostD API: `8547` (mainnet), `18547` (testnet)
+- WalletD API: `8548` (mainnet), `18548` (testnet)
+- Grafana: `3000` (admin: `ghostchain_admin`)
+- Prometheus: `9090`
 
-**Web5 by GhostChain is the natural evolution of the web—distributed, programmable, encrypted, and user-owned.**
+## 🔐 **Security & Features**
 
----
+### Cryptography
+- **ZCrypto Integration**: Ed25519, Secp256k1, Blake3, SHA256
+- **Quantum-Ready**: Post-quantum cryptography support planned
+- **Hardware Integration**: YubiKey and hardware wallet support
 
-## 🚀 Node Features
+### Transport
+- **ZQUIC**: High-performance QUIC implementation in Zig
+- **GhostBridge**: gRPC over QUIC for service communication
+- **IPv6 First**: Native IPv6 support with dual-stack fallback
 
-* **Quantum-Safe Cryptography:** Post-quantum TLS 1.3 via ZQUIC, Ed25519, Schnorr, BLAKE3
-* **Mesh-Native Networking:** Peer discovery, relay, NAT traversal via ghostnet
-* **Smart Contracts:** WASM/EVM/custom Zig VM (ZVM), contract CLI, and programmable covenants
-* **Identity & Privacy:** Full decentralized ID, SSO, and ZKP support via shroud
-* **Name Systems:** ZNS and CNS for ENS, UD, Web5, and Ghost domains
-* **Wallet:** HD, multisig, and hardware-ready wallet support (zwallet)
-* **Async Everything:** Modern, scalable async runtime with zsync
-* **Production-Ready:** Docker, Prometheus/Grafana, testnet/mainnet quickstart
+### Performance
+- **Async Runtime**: Full Tokio async/await implementation
+- **Multi-Level Caching**: Advanced caching with LRU and TTL
+- **Connection Pooling**: Optimized service communication
+- **Batch Processing**: High-throughput transaction processing
 
----
+## 📚 **Documentation**
 
-## 🌐 Token Ecosystem
+### Core Documentation
+- **[AUTH.md](AUTH.md)**: Authentication and authorization
+- **[SMARTCONTRACT.md](SMARTCONTRACT.md)**: Smart contract development
+- **[PROTOCOLS.md](PROTOCOLS.md)**: Network protocols and standards
+- **[DOMAINS.md](DOMAINS.md)**: Multi-domain name system (ZNS)
+- **[WEB5.md](WEB5.md)**: Web5 and DID integration
+- **[TOKEN.md](TOKEN.md)**: Token economics and management
 
-* **🌟 GSPR (Ghost Spirit):** Main native token (21B max supply)
-* **💎 GCC (GhostChain Credits):** Utility token for contracts/operations
-* **⚡ GMAN (Ghost Mana):** Governance/staking
-* **🔮 SOUL:** Non-transferable identity token
+### Development
+- **[CLAUDE.md](CLAUDE.md)**: Architecture and development notes
+- **[CONTRACT.md](CONTRACT.md)**: Contract deployment and management
+- **[IDENTITY.md](IDENTITY.md)**: Identity and RealID integration
+- **[WALLET.md](WALLET.md)**: Wallet development and API
 
----
+### Reference
+- **[reference-docs/](reference-docs/)**: Archive and historical documents
+- **[legacy-archive/](legacy-archive/)**: Previous implementations
 
-## 🔧 Quick Start
+## 🛠️ **Development**
 
-### 1. **Clone & Build**
-
-```sh
+### Building from Source
+```bash
+# Clone repository
 git clone https://github.com/ghostkellz/ghostchain.git
 cd ghostchain
-zig build -Drelease-fast
+
+# Build workspace
+cargo build --workspace
+
+# Run tests
+cargo test --workspace
+
+# Run integration tests
+cargo test --package ghostchain-integration-tests
 ```
 
-Or, **add to any Zig project** via:
+### Development Environment
+```bash
+# Start development stack
+./scripts/start-dev.sh
 
-```sh
-zig fetch --save https://github.com/ghostkellz/ghostchain/archive/main.tz
+# Build Docker images
+./scripts/docker-build.sh
+
+# Check services
+curl http://localhost:8547/api/v1/status
+curl http://localhost:8548/health
 ```
 
-*Or use `zion fetch` if you are using the Zion package manager/TUI.*
+## 🗺️ **Roadmap**
 
-### 2. **Run a Node (Testnet)**
+### ✅ **Completed (v0.3.0)**
+- Monorepo workspace architecture
+- GhostD blockchain daemon with ZQUIC
+- WalletD secure wallet daemon
+- Multi-service Docker deployment
+- Smart contract execution engine
+- Multi-domain name resolution (ENS, UD, Web5, Ghost)
+- Performance monitoring and optimization
 
-```sh
-./zig-out/bin/ghostchaind --testnet
-```
+### 🚧 **In Progress**
+- ZQUIC FFI integration completion
+- GhostBridge gRPC relay implementation
+- Hardware wallet integration
+- Enhanced security audit
 
-### 3. **Wallet Operations**
+### 📋 **Planned**
+- Web5 DID full implementation
+- Zero-knowledge proof integration
+- Cross-chain interoperability
+- Mobile wallet applications
+- Decentralized exchange (DEX)
 
-```sh
-./zig-out/bin/zwallet create main --algorithm ed25519
-./zig-out/bin/zwallet send main 0xabc... 1.5 --token GSPR
-```
-
----
-
-## 🧪 ZEKE: Experimental Zig AI Agent Architecture
- 
-
-ZEKE is a pure Zig, async-first agent system designed for Ghostchain, smart contract automation, network security, and programmable DevOps. It is modular, extensible, and built for future mesh-native, blockchain, and device management operations.
-
----
-
-## Agent Architecture
-
-### Core Framework (`/src/agent/mod.zig`)
-
-* **Agent trait:** Implements agent logic with function pointers for extensibility
-* **AgentManager:** Orchestrates multiple concurrent agents
-* **AgentType enum:** Defines domains (blockchain, contract, network, security, custom)
-* **AgentResult:** Standardized response for all commands/queries
-
-### Specialized Agents
-
-* **blockchain.zig:** Network ops, gas monitoring, health checks
-* **smartcontract.zig:** Contract deployment, calls, auditing
-* **network.zig:** Network scan, monitoring, traffic analysis
-* **security.zig:** Security scanning, hardening, threat detection
-
----
-
-## Terminal Integration
-
-The terminal app supports a unified CLI for agent control:
-
-```sh
-# List all available agents
-zeke agent list
-
-# Blockchain operations
-zeke agent blockchain status
-zeke agent blockchain balance 0x123...
-zeke agent blockchain health
-
-# Smart contract interactions
-zeke agent smartcontract deploy <bytecode>
-zeke agent smartcontract call <address> <method>
-zeke agent smartcontract audit <address>
-
-# Network operations
-zeke agent network scan 192.168.1.0/24
-zeke agent network ping google.com
-zeke agent network ports 192.168.1.1
-
-# Security operations
-zeke agent security scan
-zeke agent security monitor
-zeke agent security firewall enable
-```
-
----
-
-## Key Features
-
-1. **Pure Zig Implementation** — No external dependencies, leveraging Zig's speed
-2. **Extensible Design** — Easy to add new agent types/domains/commands
-3. **Function Pointer Architecture** — Runtime behavior customization
-4. **Standardized Interface** — Consistent CLI & TUI command structure
-5. **Future-Ready** — Scales to mesh, device, LLM/AI, and blockchain automation
-
----
-
----
-
-## 🤝 Contributing
+## 🤝 **Contributing**
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Build** and test (`zig build test`)
+3. **Build** and test (`cargo test --workspace`)
 4. **Commit** changes (`git commit -m 'Add amazing feature'`)
 5. **Push** to branch (`git push origin feature/amazing-feature`)
 6. **Open** a Pull Request
 
----
+## 📄 **License**
 
-## 📄 License
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
 
-Licensed under the **MIT**. See the [LICENSE](LICENSE) file for details.
-
----
-
-## 👤 Author
+## 👤 **Author**
 
 Built by [@ghostkellz](https://github.com/ghostkellz) as part of the **GhostMesh** ecosystem.
 
 ---
 
-## 🔗 Related Projects
+**🔗 Related Projects:**
+- [ZQUIC](https://github.com/ghostkellz/zquic) - High-performance QUIC implementation
+- [GhostBridge](https://github.com/ghostkellz/ghostbridge) - Cross-service communication
+- [ZCrypto](https://github.com/ghostkellz/zcrypto) - Cryptographic library
 
-* [zquic](https://github.com/ghostkellz/zquic) — QUIC protocol
-* [ghostbridge](https://github.com/ghostkellz/ghostbridge) — gRPC/FFI cross-chain bridge
-* [zcrypto](https://github.com/ghostkellz/zcrypto) — Cryptography
-
-**See `docs/` for additional documentation, integration guides, and specs.**
-
+*For additional documentation and references, see the [reference-docs/](reference-docs/) directory.*

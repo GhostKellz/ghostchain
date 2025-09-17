@@ -1,0 +1,53 @@
+[package]
+name = "ghostchain-core"
+version = "0.2.0"
+edition = "2024"
+description = "Core blockchain implementation for GhostChain"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+bincode = { workspace = true }
+sha2 = { workspace = true }
+blake3 = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand = { workspace = true }
+hex = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+bytes = { workspace = true }
+futures = { workspace = true }
+tonic = { workspace = true }
+prost = { workspace = true }
+tower = { workspace = true }
+hyper = { workspace = true }
+jsonrpc-core = { workspace = true }
+jsonrpc-derive = { workspace = true }
+jsonrpc-http-server = { workspace = true }
+jsonrpc-ws-server = { workspace = true }
+jsonrpc-core-client = { workspace = true }
+sled = { workspace = true }
+
+# Local dependencies
+ghostchain-shared = { path = "../shared" }
+
+# QUIC and GhostLink
+quinn = { workspace = true }
+rustls = { workspace = true }
+rcgen = { workspace = true }
+tokio-rustls = { workspace = true }
+ghostlink = { workspace = true }
+
+[build-dependencies]
+cc = { workspace = true }
+tonic-build = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

@@ -1,0 +1,50 @@
+[package]
+name = "walletd"
+version = "0.2.0"
+edition = "2024"
+description = "GhostChain wallet daemon with identity management and Quinn QUIC integration"
+
+[[bin]]
+name = "walletd"
+path = "src/main.rs"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+clap = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+bytes = { workspace = true }
+futures = { workspace = true }
+tonic = { workspace = true }
+prost = { workspace = true }
+tower = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand = { workspace = true }
+blake3 = { workspace = true }
+hex = { workspace = true }
+
+# Local dependencies
+ghostchain-shared = { path = "../shared" }
+
+# QUIC and GhostLink
+quinn = { workspace = true }
+rustls = { workspace = true }
+rcgen = { workspace = true }
+tokio-rustls = { workspace = true }
+ghostlink = { workspace = true }
+
+[build-dependencies]
+cc = { workspace = true }
+
+# Additional wallet-specific dependencies
+# keyring = "2.3"  # For secure key storage
+# dirs = "5.0"     # For config directories
+# rpassword = "7.3" # For secure password input

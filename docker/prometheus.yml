@@ -1,0 +1,60 @@
+# Prometheus configuration for GhostChain monitoring
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # GhostChain node metrics
+  - job_name: 'ghostchain-node'
+    static_configs:
+      - targets: ['ghostchain-node:8545']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # GhostChain validators
+  - job_name: 'ghostchain-validators'
+    static_configs:
+      - targets: 
+        - 'ghostchain-validator-1:8545'
+        - 'ghostchain-validator-2:8545'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # System metrics via node_exporter (if available)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    scrape_interval: 15s
+
+  # PostgreSQL metrics (if postgres_exporter is available)
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 15s
+
+  # Nginx metrics (if nginx-prometheus-exporter is available)
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    scrape_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Example alert rules (uncomment and customize as needed)
+# rule_files:
+#   - "alert_rules.yml"

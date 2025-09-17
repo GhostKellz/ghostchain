@@ -1,209 +1,270 @@
+# GhostChain Workspace Docker Compose Configuration
+# Multi-service deployment with ghostd and walletd
 version: '3.8'
 
 services:
-  # Core GhostChain blockchain node
+  # GhostChain Blockchain Daemon
   ghostd:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
-    container_name: ghostchain-node
-    hostname: ghostd
+      target: ghostd
+    container_name: ghostchain-ghostd
+    restart: unless-stopped
     ports:
-      - "7777:7777/udp"    # QUIC P2P networking
-      - "8545:8545/tcp"    # JSON-RPC API
-      - "8443:8443/tcp"    # HTTP3 Wraith proxy
+      - "8545:8545"   # Main RPC port
+      - "8547:8547"   # API port
+      - "8546:8546"   # P2P discovery port
+      - "8549:8549"   # QUIC transport port
+    volumes:
+      - ghostd-data:/opt/ghostchain/data
+      - ghostd-logs:/opt/ghostchain/logs
+      - ghostd-config:/opt/ghostchain/config
     environment:
-      - GHOSTCHAIN_MODE=production
-      - GHOSTCHAIN_BIND_ADDRESS=::
-      - GHOSTCHAIN_P2P_PORT=7777
-      - GHOSTCHAIN_RPC_PORT=8545
-      - GHOSTCHAIN_HTTP3_PORT=8443
-      - GHOSTCHAIN_DATA_DIR=/var/lib/ghostchain/data
+      - RUST_LOG=info
+      - GHOSTCHAIN_CHAIN_ID=ghostchain-docker
+      - GHOSTCHAIN_DATA_DIR=/opt/ghostchain/data
       - GHOSTCHAIN_LOG_LEVEL=info
-      - GHOSTCHAIN_METRICS_ENABLED=true
-      - GHOSTCHAIN_IPV6_ENABLED=true
-    volumes:
-      - ghostd_data:/var/lib/ghostchain/data
-      - ghostd_logs:/var/lib/ghostchain/logs
-      - ./docker/config:/var/lib/ghostchain/config:ro
-    networks:
-      - ghostchain_network
-    restart: unless-stopped
+    command: [
+      "ghostd", "start",
+      "--bind-address", "0.0.0.0:8545",
+      "--enable-quic",
+      "--enable-mining"
+    ]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8545/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-    command: ["ghostchain", "ghostd", "--production"]
-
-  # Wallet management service
-  walletd:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    container_name: ghostchain-wallet
-    hostname: walletd
-    ports:
-      - "3001:3001/tcp"    # HTTP API
-      - "9090:9090/udp"    # QUIC secure channel
-    environment:
-      - GHOSTCHAIN_MODE=production
-      - WALLETD_BIND_ADDRESS=::
-      - WALLETD_HTTP_PORT=3001
-      - WALLETD_QUIC_PORT=9090
-      - WALLETD_KEYSTORE_PATH=/var/lib/ghostchain/wallets
-      - WALLETD_SESSION_TIMEOUT=1800
-      - WALLETD_LOG_LEVEL=info
-    volumes:
-      - walletd_data:/var/lib/ghostchain/wallets
-      - walletd_logs:/var/lib/ghostchain/logs
-    networks:
-      - ghostchain_network
-    depends_on:
-      ghostd:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8547/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-    command: ["ghostchain", "walletd", "--production"]
+      start_period: 20s
+    networks:
+      - ghostchain-network
 
-  # ZNS name service resolver
-  zns-resolver:
-    build: 
+  # GhostChain Wallet Daemon
+  walletd:
+    build:
       context: .
       dockerfile: Dockerfile
-    container_name: ghostchain-zns
-    hostname: zns
-    ports:
-      - "5353:5353/udp"    # DNS resolver
-      - "8053:8053/tcp"    # DNS-over-HTTPS
-      - "8548:8548/tcp"    # ZNS API
-    environment:
-      - GHOSTCHAIN_MODE=production
-      - ZNS_BIND_ADDRESS=::
-      - ZNS_DNS_PORT=5353
-      - ZNS_DOH_PORT=8053
-      - ZNS_API_PORT=8548
-      - ZNS_CACHE_SIZE=10000
-      - ZNS_CACHE_TTL=3600
-      - ZNS_LOG_LEVEL=info
-    volumes:
-      - zns_cache:/var/lib/ghostchain/cache
-      - zns_logs:/var/lib/ghostchain/logs
-    networks:
-      - ghostchain_network
-    depends_on:
-      ghostd:
-        condition: service_healthy
+      target: walletd
+    container_name: ghostchain-walletd
     restart: unless-stopped
+    ports:
+      - "8548:8548"   # Wallet API port
+      - "8550:8550"   # Wallet QUIC port
+    volumes:
+      - walletd-data:/opt/ghostchain/wallets
+      - walletd-identities:/opt/ghostchain/identities
+      - walletd-keys:/opt/ghostchain/keys
+      - walletd-config:/opt/ghostchain/config
+      - walletd-logs:/opt/ghostchain/logs
+    environment:
+      - RUST_LOG=info
+      - GHOSTCHAIN_GHOSTD_ENDPOINT=http://ghostd:8547
+      - GHOSTCHAIN_DATA_DIR=/opt/ghostchain
+    command: [
+      "walletd", "start",
+      "--bind-address", "0.0.0.0:8548",
+      "--enable-quic"
+    ]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8548/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-    command: ["ghostchain", "zns", "serve", "--production"]
+      start_period: 15s
+    depends_on:
+      ghostd:
+        condition: service_healthy
+    networks:
+      - ghostchain-network
+
+  # Testnet Configuration (for development)
+  ghostd-testnet:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ghostd
+    container_name: ghostchain-ghostd-testnet
+    restart: unless-stopped
+    ports:
+      - "18545:8545"   # Testnet RPC port
+      - "18547:8547"   # Testnet API port
+      - "18546:8546"   # Testnet P2P port
+      - "18549:8549"   # Testnet QUIC port
+    volumes:
+      - ghostd-testnet-data:/opt/ghostchain/data
+      - ghostd-testnet-logs:/opt/ghostchain/logs
+      - ghostd-testnet-config:/opt/ghostchain/config
+    environment:
+      - RUST_LOG=debug
+      - GHOSTCHAIN_CHAIN_ID=ghostchain-testnet
+      - GHOSTCHAIN_DATA_DIR=/opt/ghostchain/data
+      - GHOSTCHAIN_LOG_LEVEL=debug
+    command: [
+      "ghostd", "start",
+      "--bind-address", "0.0.0.0:8545",
+      "--enable-quic",
+      "--enable-mining",
+      "--testnet"
+    ]
+    networks:
+      - ghostchain-testnet-network
+
+  # Testnet Wallet
+  walletd-testnet:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: walletd
+    container_name: ghostchain-walletd-testnet
+    restart: unless-stopped
+    ports:
+      - "18548:8548"   # Testnet wallet API
+      - "18550:8550"   # Testnet wallet QUIC
+    volumes:
+      - walletd-testnet-data:/opt/ghostchain/wallets
+      - walletd-testnet-identities:/opt/ghostchain/identities
+      - walletd-testnet-keys:/opt/ghostchain/keys
+      - walletd-testnet-config:/opt/ghostchain/config
+      - walletd-testnet-logs:/opt/ghostchain/logs
+    environment:
+      - RUST_LOG=debug
+      - GHOSTCHAIN_GHOSTD_ENDPOINT=http://ghostd-testnet:8547
+      - GHOSTCHAIN_DATA_DIR=/opt/ghostchain
+    command: [
+      "walletd", "start",
+      "--bind-address", "0.0.0.0:8548",
+      "--enable-quic",
+      "--testnet"
+    ]
+    depends_on:
+      - ghostd-testnet
+    networks:
+      - ghostchain-testnet-network
+
+  # Redis (for caching and performance)
+  redis:
+    image: redis:7-alpine
+    container_name: ghostchain-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - ghostchain-network
+      - ghostchain-testnet-network
+
+  # PostgreSQL (for analytics and indexing)
+  postgres:
+    image: postgres:15-alpine
+    container_name: ghostchain-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=ghostchain
+      - POSTGRES_USER=ghostchain
+      - POSTGRES_PASSWORD=ghostchain_secure_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - ghostchain-network
+
+  # Nginx (reverse proxy and load balancer)
+  nginx:
+    image: nginx:alpine
+    container_name: ghostchain-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+      - nginx-certs:/etc/nginx/certs
+    depends_on:
+      ghostd:
+        condition: service_healthy
+      walletd:
+        condition: service_healthy
+    networks:
+      - ghostchain-network
 
   # Monitoring with Prometheus
   prometheus:
     image: prom/prometheus:latest
     container_name: ghostchain-prometheus
-    ports:
-      - "9091:9090"
-    volumes:
-      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    networks:
-      - ghostchain_network
     restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
+    networks:
+      - ghostchain-network
 
-  # Grafana for dashboards
+  # Grafana for visualization
   grafana:
     image: grafana/grafana:latest
     container_name: ghostchain-grafana
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=ghostchain123
+      - GF_SECURITY_ADMIN_PASSWORD=ghostchain_admin
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
     volumes:
-      - grafana_data:/var/lib/grafana
-      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
-    networks:
-      - ghostchain_network
+      - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
-    restart: unless-stopped
-
-  # Redis for caching and session storage
-  redis:
-    image: redis:7-alpine
-    container_name: ghostchain-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
     networks:
-      - ghostchain_network
-    restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ghostchain
-
-  # NGINX reverse proxy for public access
-  nginx:
-    image: nginx:alpine
-    container_name: ghostchain-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
-      - nginx_logs:/var/log/nginx
-    networks:
-      - ghostchain_network
-    depends_on:
-      - ghostd
-      - walletd
-      - zns-resolver
-    restart: unless-stopped
+      - ghostchain-network
 
 volumes:
-  ghostd_data:
-    driver: local
-  ghostd_logs:
-    driver: local
-  walletd_data:
-    driver: local
-  walletd_logs:
-    driver: local
-  zns_cache:
-    driver: local
-  zns_logs:
-    driver: local
-  prometheus_data:
-    driver: local
-  grafana_data:
-    driver: local
-  redis_data:
-    driver: local
-  nginx_logs:
-    driver: local
+  # Main network volumes
+  ghostd-data:
+  ghostd-logs:
+  ghostd-config:
+  walletd-data:
+  walletd-identities:
+  walletd-keys:
+  walletd-config:
+  walletd-logs:
+  
+  # Testnet volumes
+  ghostd-testnet-data:
+  ghostd-testnet-logs:
+  ghostd-testnet-config:
+  walletd-testnet-data:
+  walletd-testnet-identities:
+  walletd-testnet-keys:
+  walletd-testnet-config:
+  walletd-testnet-logs:
+  
+  # Infrastructure volumes
+  redis-data:
+  postgres-data:
+  prometheus-data:
+  grafana-data:
+  nginx-certs:
 
 networks:
-  ghostchain_network:
+  ghostchain-network:
     driver: bridge
-    enable_ipv6: true
     ipam:
       config:
         - subnet: 172.20.0.0/16
-        - subnet: fd00:dead:beef::/48
+  
+  ghostchain-testnet-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

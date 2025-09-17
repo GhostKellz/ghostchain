@@ -1,0 +1,9 @@
+# Add to Cargo.toml
+[dependencies]
+tonic = "0.12"
+prost = "0.13"
+tower = "0.5"
+hyper = "1.0"
+
+[build-dependencies]
+tonic-build = "0.12"

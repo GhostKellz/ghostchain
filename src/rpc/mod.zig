@@ -1,1 +1,0 @@
-pub const GhostRPCServer = @import("grpc_server.zig").GhostRPCServer;

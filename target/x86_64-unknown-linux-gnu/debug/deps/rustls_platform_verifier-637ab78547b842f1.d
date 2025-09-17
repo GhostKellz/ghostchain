@@ -1,0 +1,8 @@
+/data/projects/ghostchain/target/x86_64-unknown-linux-gnu/debug/deps/librustls_platform_verifier-637ab78547b842f1.rmeta: /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/lib.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/verification/mod.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/verification/others.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/../README.md
+
+/data/projects/ghostchain/target/x86_64-unknown-linux-gnu/debug/deps/rustls_platform_verifier-637ab78547b842f1.d: /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/lib.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/verification/mod.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/verification/others.rs /home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/../README.md
+
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/lib.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/verification/mod.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/verification/others.rs:
+/home/chris/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-platform-verifier-0.5.3/src/../README.md:
