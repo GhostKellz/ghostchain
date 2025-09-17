@@ -3,3 +3,29 @@
 .zig-cache/
 *.o
 *.exe
+
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE/editor
+.idea/
+*.swp
+*.swo
+
+# Node/JS (legacy, safe to keep for now)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+*.log
