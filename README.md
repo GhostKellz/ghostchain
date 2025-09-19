@@ -1,35 +1,43 @@
+<p align="center">
+  <img src="assets/gcc-logo-primary.png" alt="GhostChain Logo" width="300"/>
+</p>
+
 # 👻 GhostChain
 
 [![Rust](https://img.shields.io/badge/Rust-2024-informational?logo=rust)](https://www.rust-lang.org/)
 [![Workspace](https://img.shields.io/badge/Architecture-Monorepo%20Workspace-blue)](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html)
-[![Shroud](https://img.shields.io/badge/Transport-Shroud%20%7C%20QUIC%20%7C%20HTTP3-0a8fdc)](https://github.com/ghostkellz/shroud)
+[![GQUIC](https://img.shields.io/badge/Transport-GQUIC%20%7C%20HTTP3-0a8fdc)](https://github.com/ghostkellz/gquic)
 [![Docker](https://img.shields.io/badge/Deployment-Docker%20%7C%20Compose-2496ED?logo=docker)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
 
-> **High-performance blockchain platform** with integrated wallet services, built on Rust workspace architecture with Shroud transport and native Zig cryptography.
-
----
-<p align="center">
-  <img src="assets/gcc-logo.png" alt="GhostChain Logo" width="240"/>
-</p>
+> **High-performance blockchain platform** with integrated wallet services, built on Rust workspace architecture with GQUIC transport, GCRYPT cryptography, and GhostPlane L2 written in Zig.
 
 ---
 
 ## 🏗️ **Workspace Architecture**
 
-GhostChain uses a **modern Rust workspace** for unified development across multiple services:
+GhostChain uses a **modern Rust monorepo workspace** for unified development across all services:
 
 ```
 ghostchain/
 ├── 📦 Cargo.toml (workspace root)
 ├── 🔧 core/           # Blockchain implementation (ghostchain-core)
 ├── 🔗 shared/         # Common types, crypto, FFI (ghostchain-shared)
-├── 👻 ghostd/         # Blockchain daemon with Shroud
-├── 💼 walletd/        # Secure wallet daemon with identity
+├── 👻 ghostd/         # Blockchain daemon with GQUIC
+├── 💼 gwallet/        # Ghost Wallet daemon
+├── 📒 gledger/        # GhostChain Ledger service
+├── 🌐 cns/            # Crypto Name Server (formerly ZNS)
+├── 🖥️ rvm/            # Rust Virtual Machine (formerly ZVM)
+├── 🔏 rsig/           # Rust Signer service (formerly ZSIG)
+├── 🆔 gid/            # Ghost ID system (identity management)
+├── 🔐 keystone/       # Key management service
+├── 🌉 ghostplane/     # Layer 2 blockchain (Zig-based)
 ├── 🧪 integration-tests/  # Cross-service testing
 ├── 🐳 docker/         # Container deployment
 ├── 📋 scripts/        # Build and development tools
-└── 📚 reference-docs/ # Archive and reference materials
+├── 📚 reference-docs/  # Brainstorming and planning documents
+├── 📁 archive/        # Archived/replaced documentation
+└── 📂 archive-zig/    # Original Zig implementations (reference)
 ```
 
 ## 🚀 **Core Services**
@@ -38,10 +46,11 @@ ghostchain/
 High-performance blockchain node with consensus and mining capabilities.
 
 **Features:**
-- **Shroud Transport**: Ultra-fast QUIC/HTTP3-based networking via ghostwire
+- **GQUIC Transport**: Ultra-fast QUIC/HTTP3-based networking ([gquic](https://github.com/ghostkellz/gquic))
+- **GCRYPT Security**: Advanced cryptographic operations ([gcrypt](https://github.com/ghostkellz/gcrypt))
 - **Mining & Consensus**: Automated block production and validation
-- **Multi-Domain ZNS**: ENS, Unstoppable, Web5, and native Ghost domains
-- **Smart Contracts**: Full contract execution with gas metering
+- **Multi-Domain CNS**: ENS, Unstoppable, Web5, and native Ghost domains
+- **Smart Contracts**: Full contract execution with gas metering via RVM
 - **Performance Monitoring**: Real-time metrics and optimization
 
 ```bash
@@ -55,36 +64,78 @@ ghostd start --testnet --bind-address 0.0.0.0:8545
 ghostd status
 ```
 
-### 💼 **WalletD** - Secure Wallet Daemon
+### 💼 **GWALLET** - Ghost Wallet Service
 Advanced wallet management with multi-algorithm support and identity services.
 
 **Features:**
-- **Multi-Algorithm**: Ed25519, Secp256k1, Secp256r1 support
+- **Multi-Algorithm**: Ed25519, Secp256k1, Secp256r1 support via GCRYPT
 - **HD Wallets**: Hierarchical deterministic key management
-- **Identity (RealID)**: Decentralized identity management
+- **Ghost ID (GID)**: Decentralized identity management system
 - **Hardware Support**: Ready for hardware wallet integration
-- **Shroud Integration**: High-performance transport and cryptography
+- **GQUIC Integration**: High-performance transport
+- **Keystone Integration**: Secure key management
 
 ```bash
 # Start wallet daemon
-walletd start --enable-quic
+gwallet start --enable-quic
 
 # Create new wallet
-walletd wallet create main --algorithm ed25519
+gwallet wallet create main --algorithm ed25519
 
 # Create identity
-walletd identity create alice --key-algorithm ed25519
+gwallet identity create alice --key-algorithm ed25519
 
 # Send tokens
-walletd wallet send main 0xabc... 1.5 --token GSPR
+gwallet wallet send main 0xabc... 1.5 --token GSPR
 ```
+
+## 🚀 **Core Services & Components**
+
+### 🌉 **GhostPlane** - Layer 2 Blockchain
+High-performance Layer 2 solution built in Zig for scalability and speed.
+
+**Features:**
+- **Zig Implementation**: Native performance with memory safety
+- **Cross-Chain Bridge**: Seamless interaction with main chain
+- **Optimistic Rollups**: Fast transaction processing
+- **ZQLITE Integration**: Crypto-native database ([zqlite](https://github.com/ghostkellz/zqlite))
+- **FFI Bindings**: Rust interoperability for main chain communication
+
+### 🌐 **CNS** - Crypto Name Server
+Multi-domain name resolution system (formerly ZNS).
+
+**Supported Domains:**
+- ENS (.eth)
+- Unstoppable Domains
+- Web5 DIDs
+- Ghost native domains (.ghost)
+
+### ⚙️ **RVM** - Rust Virtual Machine
+Smart contract execution environment (formerly ZVM).
+- Full EVM compatibility
+- Gas optimization
+- Contract verification
+
+### 📒 **GLEDGER** - GhostChain Ledger
+Distributed ledger service for transaction management.
+- High-throughput processing
+- State management
+- Query optimization
+
+### 🔐 **Additional Services**
+- **RSIG**: Transaction signing service
+- **GID**: Ghost Identity system for decentralized identity
+- **Keystone**: Secure key management and storage
+- **Jarvis**: AI-powered blockchain assistance
 
 ## 🌐 **Token Ecosystem**
 
-- **🌟 GSPR (Ghost Spirit)**: Primary native token (21B max supply)
-- **💎 GCC (GhostChain Credits)**: Utility token for contracts and operations
-- **⚡ GMAN (Ghost Mana)**: Governance and staking rewards (earned through participation)
+- **🌟 GSPR (Ghost Spirit)**: Primary native token (21B max supply) ![GSPR](assets/gcc-spirit-token.png)
+- **💎 GCC (GhostChain Credits)**: Utility token for contracts and operations ![GCC](assets/GCC-Credit-icon.png)
+- **⚡ GMAN (Ghost Mana)**: Governance and staking rewards (earned through participation) ![GMAN](assets/gman-token.png)
 - **🔮 SOUL**: Non-transferable identity tokens
+
+*Token icons available in [assets/gcc-tokens/](assets/gcc-tokens/) directory*
 
 ## 🔧 **Quick Start**
 
@@ -107,7 +158,7 @@ cargo build --release --workspace
 
 # Run specific service
 cargo run --bin ghostd -- start --testnet
-cargo run --bin walletd -- start --testnet
+cargo run --bin gwallet -- start --testnet
 ```
 
 ### Option 3: Individual Services
@@ -116,17 +167,17 @@ cargo run --bin walletd -- start --testnet
 cargo install --path ghostd
 ghostd start --testnet
 
-# Install and run walletd  
-cargo install --path walletd
-walletd start --testnet
+# Install and run gwallet
+cargo install --path gwallet
+gwallet start --testnet
 ```
 
 ## 🐳 **Docker Services**
 
 The docker-compose setup includes:
 
-- **ghostd/walletd**: Main blockchain and wallet services
-- **ghostd-testnet/walletd-testnet**: Development testnet
+- **ghostd/gwallet**: Main blockchain and wallet services
+- **ghostd-testnet/gwallet-testnet**: Development testnet
 - **Redis**: Caching and session storage
 - **PostgreSQL**: Analytics and indexing
 - **Nginx**: Reverse proxy and load balancing
@@ -135,19 +186,20 @@ The docker-compose setup includes:
 **Service Ports:**
 - GhostD RPC: `8545` (mainnet), `18545` (testnet)
 - GhostD API: `8547` (mainnet), `18547` (testnet)
-- WalletD API: `8548` (mainnet), `18548` (testnet)
+- GWallet API: `8548` (mainnet), `18548` (testnet)
 - Grafana: `3000` (admin: `ghostchain_admin`)
 - Prometheus: `9090`
 
 ## 🔐 **Security & Features**
 
 ### Cryptography
-- **ZCrypto Integration**: Ed25519, Secp256k1, Blake3, SHA256
+- **GCRYPT Integration**: Ed25519, Secp256k1, Blake3, SHA256 ([gcrypt](https://github.com/ghostkellz/gcrypt))
 - **Quantum-Ready**: Post-quantum cryptography support planned
-- **Hardware Integration**: YubiKey and hardware wallet support
+- **Hardware Integration**: YubiKey and hardware wallet support via Keystone
+- **RSIG**: Rust-based signing service for transaction security
 
 ### Transport
-- **ZQUIC**: High-performance QUIC implementation in Zig
+- **GQUIC**: High-performance QUIC implementation ([gquic](https://github.com/ghostkellz/gquic))
 - **GhostBridge**: gRPC over QUIC for service communication
 - **IPv6 First**: Native IPv6 support with dual-stack fallback
 
@@ -163,19 +215,19 @@ The docker-compose setup includes:
 - **[AUTH.md](AUTH.md)**: Authentication and authorization
 - **[SMARTCONTRACT.md](SMARTCONTRACT.md)**: Smart contract development
 - **[PROTOCOLS.md](PROTOCOLS.md)**: Network protocols and standards
-- **[DOMAINS.md](DOMAINS.md)**: Multi-domain name system (ZNS)
+- **[DOMAINS.md](DOMAINS.md)**: Multi-domain name system (CNS - Crypto Name Server)
 - **[WEB5.md](WEB5.md)**: Web5 and DID integration
 - **[TOKEN.md](TOKEN.md)**: Token economics and management
 
 ### Development
 - **[CLAUDE.md](CLAUDE.md)**: Architecture and development notes
 - **[CONTRACT.md](CONTRACT.md)**: Contract deployment and management
-- **[IDENTITY.md](IDENTITY.md)**: Identity and RealID integration
+- **[IDENTITY.md](IDENTITY.md)**: Identity and RealID / GID integration
 - **[WALLET.md](WALLET.md)**: Wallet development and API
 
 ### Reference
-- **[reference-docs/](reference-docs/)**: Archive and historical documents
-- **[legacy-archive/](legacy-archive/)**: Previous implementations
+- **[archive/](archive/)**: Replaced and historical documentation
+- **[archive-zig/](archive-zig/)**: Original Zig implementations for reference
 
 ## 🛠️ **Development**
 
@@ -211,26 +263,35 @@ curl http://localhost:8548/health
 ## 🗺️ **Roadmap**
 
 ### ✅ **Completed (v0.3.0)**
-- Monorepo workspace architecture
-- GhostD blockchain daemon with ZQUIC
-- WalletD secure wallet daemon
+- Rust-based monorepo workspace architecture
+- GhostD blockchain daemon with GQUIC
+- GWALLET secure wallet service
 - Multi-service Docker deployment
-- Smart contract execution engine
-- Multi-domain name resolution (ENS, UD, Web5, Ghost)
+- RVM smart contract execution engine
+- CNS multi-domain name resolution (ENS, UD, Web5, Ghost)
+- GCRYPT and GQUIC crate integration
 - Performance monitoring and optimization
 
 ### 🚧 **In Progress**
-- ZQUIC FFI integration completion
-- GhostBridge gRPC relay implementation
-- Hardware wallet integration
-- Enhanced security audit
+- GhostPlane L2 implementation in Zig
+- GQUIC FFI integration completion
+- GhostBridge Rust/Zig interop
+- RSIG transaction signing service
+- GLEDGER distributed ledger
+- GID identity system
+- Keystone key management
+- Hardware wallet integration via Keystone
+- ZQLITE database integration
 
 ### 📋 **Planned**
-- Web5 DID full implementation
+- Full GhostPlane L2 deployment
+- Web5 DID full implementation via GID
 - Zero-knowledge proof integration
 - Cross-chain interoperability
-- Mobile wallet applications
+- Mobile GWALLET applications
 - Decentralized exchange (DEX)
+- Jarvis AI integration
+- Complete migration from Zig components to Rust (except GhostPlane)
 
 ## 🤝 **Contributing**
 
@@ -252,8 +313,10 @@ Built by [@ghostkellz](https://github.com/ghostkellz) as part of the **GhostMesh
 ---
 
 **🔗 Related Projects:**
-- [ZQUIC](https://github.com/ghostkellz/zquic) - High-performance QUIC implementation
+- [GQUIC](https://github.com/ghostkellz/gquic) - High-performance QUIC implementation (Rust)
+- [GCRYPT](https://github.com/ghostkellz/gcrypt) - Cryptographic library (Rust)
+- [ZQLITE](https://github.com/ghostkellz/zqlite) - Crypto-native database (Zig)
+- [RVM](https://github.com/ghostkellz/rvm) - Rust Virtual Machine
 - [GhostBridge](https://github.com/ghostkellz/ghostbridge) - Cross-service communication
-- [ZCrypto](https://github.com/ghostkellz/zcrypto) - Cryptographic library
 
-*For additional documentation and references, see the [reference-docs/](reference-docs/) directory.*
+*For additional documentation: [reference-docs/](reference-docs/) for brainstorming and planning, [archive/](archive/) for replaced docs, and [archive-zig/](archive-zig/) for original Zig implementations.*

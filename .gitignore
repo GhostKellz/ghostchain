@@ -1,6 +1,4 @@
-/zig-cache/
-/zig-out/
-.zig-cache/
+# Build artifacts
 *.o
 *.exe
 
@@ -20,6 +18,11 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Archive / References 
+/archive 
+/archive-zig
+
 
 # Node/JS (legacy, safe to keep for now)
 node_modules/
