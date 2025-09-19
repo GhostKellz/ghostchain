@@ -1,0 +1,55 @@
+[package]
+name = "gsig"
+version = "0.1.0"
+edition = "2021"
+description = "Ghost Signature Service - Cryptographic signing and verification for GhostChain"
+authors = ["GhostChain Team"]
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+clap = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+hex = { workspace = true }
+
+# JSON-RPC for API
+jsonrpc-core = { workspace = true }
+jsonrpc-derive = { workspace = true }
+jsonrpc-http-server = { workspace = true }
+
+# Networking
+tonic = { workspace = true }
+prost = { workspace = true }
+hyper = { workspace = true }
+
+# GhostChain dependencies
+ghostchain-core = { path = "../core" }
+ghostchain-shared = { path = "../shared" }
+
+# Database
+sled = { workspace = true }
+
+# Cryptography
+ed25519-dalek = { workspace = true }
+sha2 = { workspace = true }
+blake3 = { workspace = true }
+rand = { workspace = true }
+
+# External GhostChain crates (when available)
+# gcrypt = { workspace = true }
+
+# Additional dependencies
+dashmap = "5.5"
+parking_lot = "0.12"
+base64 = "0.22"
+
+[build-dependencies]
+tonic-build = { workspace = true }

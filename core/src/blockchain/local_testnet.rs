@@ -8,7 +8,7 @@ use tracing::{info, warn, error};
 
 use crate::blockchain::{Blockchain, integration::BlockchainContractIntegration};
 use crate::types::*;
-use crate::crypto::KeyPair;
+use ghostchain_shared::crypto::legacy::KeyPair;
 use crate::token::TokenManager;
 use crate::contracts::{ContractExecutor, storage::ContractStorage};
 use crate::contracts::ghostchain_tokens::*;
@@ -83,7 +83,7 @@ impl LocalTestnet {
         
         // Create contract integration
         let contract_integration = Arc::new(RwLock::new(
-            BlockchainContractIntegration::new(blockchain.clone(), contract_executor)
+            BlockchainContractIntegration::new(blockchain.clone())
         ));
 
         // Initialize token manager
@@ -91,7 +91,7 @@ impl LocalTestnet {
         
         // Initialize performance manager
         let performance_config = crate::performance::PerformanceConfig::default();
-        let performance_manager = PerformanceManager::new(performance_config).await?;
+        let performance_manager = PerformanceManager::new(performance_config)?;
 
         // Create test accounts
         let test_accounts = Self::create_test_accounts(config.test_accounts)?;
@@ -113,7 +113,7 @@ impl LocalTestnet {
 
         info!("✅ Local testnet initialized successfully");
         info!("   Chain ID: {}", config.chain_id);
-        info!("   Test accounts: {}", test_accounts.len());
+        info!("   Test accounts: {}", testnet.test_accounts.len());
         info!("   Validators: {}", config.initial_validators);
 
         Ok(testnet)
@@ -155,7 +155,7 @@ impl LocalTestnet {
 
         for i in 0..count.min(account_names.len()) {
             let name = account_names[i].to_string();
-            let key_pair = KeyPair::generate()?;
+            let key_pair = KeyPair::generate();
             let address = format!("0x{:040x}", i + 1); // Simple address generation for testing
             
             let mut initial_balances = HashMap::new();

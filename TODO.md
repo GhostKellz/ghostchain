@@ -34,4 +34,5 @@
 - [ ] Update Readme file to have gcc-logo-primary.png  At the top 
 - [ ] Let's really clean up. ZQLITE that crypto based database still is a zig project so we can keep using that it's rust capable via FFI binding etc. github.com/ghostkellz/zqlite 
 - [ ] I added archive directory for old documentation that's been replaced etc. archive-zig contains the old zig projects
+- [ ]  We also want to build the walletd and ghostd and other daemons in rust here as well
 

@@ -8,9 +8,9 @@ use std::collections::HashMap;
 
 pub mod ghostd;
 pub mod walletd;
-pub mod zvm;
+pub mod rvm;
 pub mod ghostbridge;
-pub mod zquic;
+pub mod gquic;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServiceConfig {

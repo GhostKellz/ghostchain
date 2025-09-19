@@ -1,0 +1,46 @@
+[package]
+name = "cns"
+version = "0.1.0"
+edition = "2021"
+description = "Crypto Name Service - Multi-domain resolution for GhostChain"
+authors = ["GhostChain Team"]
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+clap = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+hex = { workspace = true }
+
+# JSON-RPC for API
+jsonrpc-core = { workspace = true }
+jsonrpc-derive = { workspace = true }
+jsonrpc-http-server = { workspace = true }
+
+# Networking
+tonic = { workspace = true }
+prost = { workspace = true }
+hyper = { workspace = true }
+
+# GhostChain dependencies
+ghostchain-core = { path = "../core" }
+ghostchain-shared = { path = "../shared" }
+
+# Database
+sled = { workspace = true }
+
+# Additional dependencies
+rand = "0.8"
+dashmap = "5.5"
+parking_lot = "0.12"
+
+[build-dependencies]
+tonic-build = { workspace = true }

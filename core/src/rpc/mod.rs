@@ -633,14 +633,14 @@ impl GhostChainRpc for RpcImpl {
     }
     
     fn get_domains_by_owner(&self, owner: String) -> jsonrpc_core::Result<Vec<String>> {
-        let result = tokio::task::block_in_place(|| {
+        let result: Result<Vec<u8>> = tokio::task::block_in_place(|| {
             let rt = tokio::runtime::Handle::current();
             rt.block_on(async {
                 let integration = self.contract_integration.read().await;
                 let query_data = serde_json::to_vec(&serde_json::json!({
                     "owner": owner
                 })).unwrap();
-                
+
                 integration.query_contract(
                     &"system.domain_registry".to_string(),
                     "get_owner_domains",
@@ -648,7 +648,7 @@ impl GhostChainRpc for RpcImpl {
                 ).await
             })
         });
-        
+
         match result {
             Ok(data) => {
                 let domains: Vec<String> = serde_json::from_slice(&data)

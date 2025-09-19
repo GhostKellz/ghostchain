@@ -2,7 +2,7 @@ pub mod integration;
 pub mod local_testnet;
 
 use crate::types::*;
-use crate::crypto::hash_data;
+use ghostchain_shared::crypto::legacy::hash_data;
 use anyhow::{Result, anyhow};
 use chrono::Utc;
 use std::collections::HashMap;
@@ -239,6 +239,10 @@ impl Blockchain {
         self.state.accounts.get(address)
     }
 
+    pub fn current_height(&self) -> u64 {
+        self.chain.len() as u64 - 1
+    }
+
     /// Initialize blockchain with genesis configuration (needed for local testnet)
     pub async fn initialize_with_genesis(&mut self, genesis_config: &GenesisConfig) -> Result<()> {
         // Update config
@@ -263,7 +267,7 @@ impl Blockchain {
     /// Create a new blockchain with default genesis (for compatibility)
     pub fn new_default() -> Self {
         let default_config = GenesisConfig::default();
-        Self::new(default_config).unwrap_or_else(|_| {
+        Self::new(default_config.clone()).unwrap_or_else(|_| {
             // Fallback if genesis creation fails
             Self {
                 chain: Vec::new(),

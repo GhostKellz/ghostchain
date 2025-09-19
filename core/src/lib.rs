@@ -8,11 +8,15 @@
 // - RPC interfaces
 
 pub mod blockchain;
+pub mod cns_integration;
 pub mod contracts;
+pub mod network;
 pub mod performance;
 pub mod rpc;
+pub mod services;
 pub mod storage;
 pub mod token;
+pub mod tokens;
 
 // Re-export commonly used types from shared
 pub use ghostchain_shared::{
@@ -21,6 +25,15 @@ pub use ghostchain_shared::{
     domains::*,
     ffi::*,
 };
+
+// Create module aliases for internal use
+pub mod types {
+    pub use ghostchain_shared::types::*;
+}
+
+pub mod crypto {
+    pub use ghostchain_shared::crypto::*;
+}
 
 use anyhow::Result;
 use tracing::info;
@@ -31,7 +44,7 @@ pub async fn init_ghostchain_core() -> Result<()> {
     
     // Initialize performance monitoring
     let perf_config = performance::PerformanceConfig::default();
-    let _perf_manager = performance::PerformanceManager::new(perf_config).await?;
+    let _perf_manager = performance::PerformanceManager::new(perf_config)?;
     
     info!("✅ GhostChain Core initialized successfully");
     Ok(())

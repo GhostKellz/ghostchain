@@ -96,10 +96,10 @@ High-performance Layer 2 solution built in Zig for scalability and speed.
 
 **Features:**
 - **Zig Implementation**: Native performance with memory safety
-- **Cross-Chain Bridge**: Seamless interaction with main chain
+- **GhostBridge Integration**: Rust → Zig bridge for safe cross-chain communication
 - **Optimistic Rollups**: Fast transaction processing
 - **ZQLITE Integration**: Crypto-native database ([zqlite](https://github.com/ghostkellz/zqlite))
-- **FFI Bindings**: Rust interoperability for main chain communication
+- **FFI Safety**: GhostBridge handles all unsafe FFI operations from Rust side
 
 ### 🌐 **CNS** - Crypto Name Server
 Multi-domain name resolution system (formerly ZNS).
@@ -273,9 +273,9 @@ curl http://localhost:8548/health
 - Performance monitoring and optimization
 
 ### 🚧 **In Progress**
-- GhostPlane L2 implementation in Zig
+- GhostPlane L2 implementation in Zig ([ghostplane](https://github.com/ghostkellz/ghostplane))
 - GQUIC FFI integration completion
-- GhostBridge Rust/Zig interop
+- GhostBridge Rust → Zig bridge implementation
 - RSIG transaction signing service
 - GLEDGER distributed ledger
 - GID identity system
@@ -315,8 +315,9 @@ Built by [@ghostkellz](https://github.com/ghostkellz) as part of the **GhostMesh
 **🔗 Related Projects:**
 - [GQUIC](https://github.com/ghostkellz/gquic) - High-performance QUIC implementation (Rust)
 - [GCRYPT](https://github.com/ghostkellz/gcrypt) - Cryptographic library (Rust)
-- [ZQLITE](https://github.com/ghostkellz/zqlite) - Crypto-native database (Zig)
 - [RVM](https://github.com/ghostkellz/rvm) - Rust Virtual Machine
-- [GhostBridge](https://github.com/ghostkellz/ghostbridge) - Cross-service communication
+- [GhostBridge](https://github.com/ghostkellz/ghostbridge) - Rust → Zig FFI bridge for GhostPlane
+- [GhostPlane](https://github.com/ghostkellz/ghostplane) - Layer 2 blockchain (Zig)
+- [ZQLITE](https://github.com/ghostkellz/zqlite) - Crypto-native database (Zig)
 
 *For additional documentation: [reference-docs/](reference-docs/) for brainstorming and planning, [archive/](archive/) for replaced docs, and [archive-zig/](archive-zig/) for original Zig implementations.*

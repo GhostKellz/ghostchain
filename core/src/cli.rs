@@ -1,12 +1,12 @@
 use clap::{Parser, Subcommand};
 use crate::types::*;
-use crate::crypto::KeyPair;
+use ghostchain_shared::crypto::legacy::KeyPair;
 use crate::blockchain::Blockchain;
 use crate::token::TokenManager;
 use crate::network::{NetworkNode, NetworkConfig};
 use crate::consensus::{ConsensusModule, ConsensusConfig};
 use crate::storage::Storage;
-use crate::zns_integration::ZnsIntegration; // Add ZNS integration
+use crate::cns_integration::CnsIntegration; // Add CNS integration
 use crate::services::ServiceManager; // Add service management
 use crate::performance::{PerformanceManager, PerformanceConfig}; // Add performance management
 use anyhow::Result;

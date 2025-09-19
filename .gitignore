@@ -22,7 +22,7 @@ Thumbs.db
 # Archive / References 
 /archive 
 /archive-zig
-
+/archive-gcc-docs 
 
 # Node/JS (legacy, safe to keep for now)
 node_modules/

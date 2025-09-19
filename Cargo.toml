@@ -5,7 +5,7 @@ members = [
     "ghostd",
     "walletd",
     "integration-tests"
-]
+, "cns", "gid", "gsig", "gledger"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -53,7 +53,15 @@ rustls = "0.21"
 rcgen = "0.11"
 tokio-rustls = "0.24"
 
-# GhostLink integration
+# GhostChain ecosystem crates
+gcrypt = { git = "https://github.com/ghostkellz/gcrypt", version = "0.3.0" }
+gquic = { git = "https://github.com/ghostkellz/gquic", version = "0.2.0" }
+etherlink = { git = "https://github.com/ghostkellz/etherlink", version = "0.1.0" }
+rvm = { git = "https://github.com/ghostkellz/rvm", version = "0.1.0" }
+jarvis = { git = "https://github.com/ghostkellz/jarvis", version = "0.1.0" }
+wraith = { git = "https://github.com/ghostkellz/wraith", version = "0.1.0" }
+
+# GhostLink integration (legacy)
 ghostlink = { git = "https://github.com/ghostkellz/ghostlink", version = "0.3.0", features = ["quic"] }
 
 # JSON-RPC

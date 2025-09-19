@@ -7,6 +7,7 @@ pub mod legacy {
     use hex;
     use anyhow::{Result, anyhow};
 
+    #[derive(Debug, Clone)]
     pub struct KeyPair {
         pub signing_key: SigningKey,
         pub verifying_key: VerifyingKey,
@@ -64,11 +65,11 @@ pub mod legacy {
     }
 }
 
-// New Shroud-based crypto module
-pub mod shroud_crypto;
+// Guardian crypto operations - will use gcrypt as backend
+pub mod guardian;
 
-// Re-export shroud crypto as the primary interface
-pub use shroud_crypto::{CryptoManager, CryptoOperations, Ed25519KeyPair, Secp256k1KeyPair};
+// Re-export guardian crypto as the primary interface
+pub use guardian::{GuardianCrypto, CryptoOperations};
 
 #[cfg(test)]
 mod tests {
