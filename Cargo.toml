@@ -57,6 +57,7 @@ tokio-rustls = "0.24"
 gcrypt = { git = "https://github.com/ghostkellz/gcrypt", version = "0.3.0" }
 gquic = { git = "https://github.com/ghostkellz/gquic", version = "0.2.0" }
 etherlink = { git = "https://github.com/ghostkellz/etherlink", version = "0.1.0" }
+ghostbridge = { git = "https://github.com/ghostkellz/ghostbridge", version = "0.1.0" }
 rvm = { git = "https://github.com/ghostkellz/rvm", version = "0.1.0" }
 jarvis = { git = "https://github.com/ghostkellz/jarvis", version = "0.1.0" }
 wraith = { git = "https://github.com/ghostkellz/wraith", version = "0.1.0" }

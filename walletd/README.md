@@ -15,7 +15,7 @@ WALLETD is GhostChain's secure wallet daemon that provides comprehensive key man
 ### **Key Features**
 - **🔑 HD Wallet Management** - Hierarchical Deterministic wallets with BIP39/BIP44 support
 - **🆔 Identity Integration** - Full Ghost Identity (GID) management
-- **⚡ QUIC Transport** - High-performance networking via GhostLink
+- **⚡ GQUIC Transport** - High-performance networking via GQUIC
 - **🔐 Multi-Signature Support** - Advanced multi-party transaction signing
 - **🛡️ Hardware Wallet Ready** - Integration with hardware security modules
 - **📱 Multi-Algorithm Support** - Ed25519, Secp256k1, BLS signatures
@@ -37,9 +37,9 @@ WALLETD is GhostChain's secure wallet daemon that provides comprehensive key man
            │                │                        │
            ▼                ▼                        ▼
 ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────────┐
-│ Secure Storage  │ │ QUIC Transport  │ │ Hardware Security   │
+│ Secure Storage  │ │ GQUIC Transport │ │ Hardware Security   │
 │                 │ │                 │ │                     │
-│ • Encrypted DB  │ • GhostLink     │ • HSM Integration       │
+│ • Encrypted DB  │ • GQUIC Network │ • HSM Integration       │
 │ • Key Derivation│ • Peer Comms    │ • Secure Enclaves       │
 │ • Backup/Restore│ • API Server    │ • Hardware Wallets      │
 └─────────────────┘ └─────────────────┘ └─────────────────────┘
@@ -61,7 +61,7 @@ WALLETD is GhostChain's secure wallet daemon that provides comprehensive key man
 ### **Start WALLETD Daemon**
 ```bash
 # Start wallet daemon
-walletd start --bind-address 0.0.0.0:8548 --enable-quic
+walletd start --bind-address 0.0.0.0:8548 --enable-gquic
 
 # Start in background mode
 walletd start --background
@@ -109,7 +109,7 @@ walletd identity verify alice "message" "signature_hex"
 [daemon]
 bind_address = "0.0.0.0:8548"
 data_dir = "./walletd_data"
-enable_quic = true
+enable_gquic = true
 enable_api = true
 
 [security]
@@ -130,7 +130,7 @@ enable_guardian = true
 ephemeral_ttl = 3600
 
 [networking]
-quic_endpoint = "0.0.0.0:8548"
+gquic_endpoint = "0.0.0.0:8548"
 max_connections = 100
 enable_peer_discovery = false
 ```
@@ -317,7 +317,7 @@ impl IdentityManager {
             service: vec![ServiceEntry {
                 id: format!("{}#walletd", identity.did),
                 service_type: "WalletService".to_string(),
-                service_endpoint: format!("quic://localhost:8548/identity/{}", identity.name),
+                service_endpoint: format!("gquic://localhost:8548/identity/{}", identity.name),
             }],
             guardian_policies: identity.guardian_policies.clone(),
         })

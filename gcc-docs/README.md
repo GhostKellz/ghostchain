@@ -79,7 +79,10 @@ Welcome to the GhostChain Core documentation hub. This directory contains detail
 
 ## 🔗 **External Integrations**
 
-- **[Etherlink Integration](./etherlink-integration.md)** - Ethereum network bridging
+- **[GhostBridge Integration](./ghostbridge-integration.md)** - GhostPlane L2 bridging
+- **[Ethereum Integration](./ethereum-integration.md)** - Ethereum mainnet bridging
+- **[ENS Integration](./ens-integration.md)** - Ethereum Name Service integration
+- **[Unstoppable Domains](./unstoppable-integration.md)** - .crypto/.nft domain support
 - **[RVM Integration](./rvm-integration.md)** - Rust EVM integration
 - **[GCrypt Integration](./gcrypt-integration.md)** - Post-quantum cryptography
 - **[GQUIC Integration](./gquic-integration.md)** - High-performance networking
